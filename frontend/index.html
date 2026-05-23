@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>newslens — 뉴스 기사 분석</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>📰 newslens</h1>
+      <p class="tagline">기사를 렌즈로 들여다본다 — 사실과 의견을 가려냅니다.</p>
+    </header>
+
+    <section class="input-card">
+      <label for="url-input" class="input-label">뉴스 기사 URL</label>
+      <div class="url-row">
+        <input
+          id="url-input"
+          type="url"
+          placeholder="https://news.example.com/article/123"
+          autocomplete="off"
+        />
+        <button id="analyze-btn" type="button">분석</button>
+      </div>
+
+      <details class="text-fallback">
+        <summary>URL이 안 되나요? 본문 직접 입력</summary>
+        <textarea
+          id="text-input"
+          rows="8"
+          placeholder="기사 본문을 여기에 붙여넣으세요..."
+        ></textarea>
+        <input id="source-input" type="text" placeholder="기사 출처 (선택, 예: 조선일보)" />
+      </details>
+    </section>
+
+    <section id="status" class="status hidden" aria-live="polite"></section>
+
+    <section id="result" class="result hidden">
+      <div class="result-meta">
+        <h2 id="article-title"></h2>
+        <p class="meta-line">
+          <span id="article-source"></span>
+          <span id="article-author"></span>
+          <span id="article-date"></span>
+        </p>
+        <p class="parser-info">파서: <span id="parser-used"></span> · 문장 <span id="sentence-count"></span>개</p>
+      </div>
+
+      <ol id="sentence-list" class="sentence-list"></ol>
+    </section>
+
+    <footer>
+      <p class="disclaimer">
+        Day 1 프리뷰 — 문장 분리까지만 동작합니다. 분류 기능은 Day 3부터.
+      </p>
+    </footer>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>

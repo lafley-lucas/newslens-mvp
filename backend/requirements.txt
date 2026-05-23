@@ -1,0 +1,10 @@
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+pydantic==2.9.2
+pydantic-settings==2.5.2
+httpx==0.28.1
+trafilatura==1.12.2
+newspaper4k==0.9.3.1
+kss==6.0.4
+python-dotenv==1.0.1
+google-genai==2.6.0
