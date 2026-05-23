@@ -45,6 +45,8 @@ const els = {
   factDigestList: $("fact-digest-list"),
   factDigestBlock: $("fact-digest-block"),
 
+  noticesBlock: $("notices-block"),
+
   modeButtons: $$(".mode-btn"),
   analyzeHint: $("analyze-hint"),
   articleBody: $("article-body"),
@@ -198,6 +200,22 @@ function renderResult(data) {
   els.cntClaim.textContent = s.claim_count;
   els.cntOpinion.textContent = s.opinion_count;
   els.cntFraming.textContent = s.framing_count;
+
+  // notices 배너 (백엔드의 안내 메시지)
+  els.noticesBlock.innerHTML = "";
+  const notices = data.notices || [];
+  if (notices.length === 0) {
+    els.noticesBlock.classList.add("hidden");
+  } else {
+    els.noticesBlock.classList.remove("hidden");
+    const isOpinion = data.article.type === "opinion";
+    for (const n of notices) {
+      const div = document.createElement("div");
+      div.className = isOpinion ? "notice notice-opinion" : "notice";
+      div.textContent = n;
+      els.noticesBlock.appendChild(div);
+    }
+  }
 
   // 핵심 사실 카드
   els.factDigestList.innerHTML = "";

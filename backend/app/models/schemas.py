@@ -26,6 +26,7 @@ class ArticleMeta(BaseModel):
     date: Optional[str] = None
     author: Optional[str] = None
     url: Optional[str] = None
+    type: str = "news"  # "news" | "opinion" — 칼럼/사설로 보이면 "opinion"
 
 
 class Sentence(BaseModel):
@@ -82,6 +83,7 @@ class AnalyzeResponse(BaseModel):
     parser: str
     analysis: AnalysisBlock
     warnings: list[str] = Field(default_factory=list)
+    notices: list[str] = Field(default_factory=list)  # 사용자에게 보여줄 안내 (opinion, 한국어 비율 등)
     cached: bool = False  # Day 5: URL 캐시 히트 여부
 
 

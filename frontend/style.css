@@ -438,6 +438,29 @@ textarea {
 }
 .analyze-hint.hidden { display: none; }
 
+/* notices 배너 (오피니언/significant=0 등 백엔드가 보내는 안내) */
+.notices-block {
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.notices-block.hidden { display: none; }
+.notice {
+  padding: 10px 12px;
+  background: #eef4fb;
+  border-left: 3px solid #2563eb;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: #1e3a5f;
+  line-height: 1.55;
+}
+.notice-opinion {
+  background: #fff3eb;
+  border-left-color: var(--color-opinion);
+  color: #7a3a0c;
+}
+
 /* 기사 본문 (읽기·분석 공통 컨테이너) */
 .article-body {
   font-size: 16px;

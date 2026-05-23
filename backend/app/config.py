@@ -10,6 +10,8 @@ class Settings(BaseSettings):
 
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-2.5-flash"
+    # 1차 모델 429(quota) 시 즉시 시도할 fallback. 무료 티어 한도가 더 넉넉하고 응답 빠름.
+    GEMINI_MODEL_FALLBACK: str = "gemini-2.5-flash-lite"
     GEMINI_TIMEOUT_SECONDS: float = 60.0
 
     HTTP_TIMEOUT_SECONDS: float = 10.0

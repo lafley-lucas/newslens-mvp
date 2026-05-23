@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from typing import Optional
 
 from google import genai
@@ -29,6 +30,34 @@ logger = logging.getLogger(__name__)
 
 class ClassificationError(Exception):
     """LLM 분류 호출이 실패했고 재시도도 실패. 라우트는 500/503으로 변환."""
+
+
+class QuotaExceededError(ClassificationError):
+    """무료 티어 분당/일일 한도 초과 (429 RESOURCE_EXHAUSTED). 1차+fallback 모두 실패."""
+
+    def __init__(self, message: str, retry_after_sec: Optional[int] = None):
+        super().__init__(message)
+        self.retry_after_sec = retry_after_sec
+
+
+def _quota_retry_after(exc: Exception) -> Optional[int]:
+    """exception 메시지에서 retry_after 초를 추출. 429 아니면 None."""
+    msg = str(exc)
+    if "429" not in msg and "RESOURCE_EXHAUSTED" not in msg:
+        return None
+    # google-genai 응답 메시지 패턴: 'retryDelay': '38s' 또는 'retry in 38s'
+    m = re.search(r"['\"]retryDelay['\"]\s*:\s*['\"](\d+)s?['\"]", msg)
+    if m:
+        return int(m.group(1))
+    m = re.search(r"retry in (\d+)", msg)
+    if m:
+        return int(m.group(1))
+    return 60  # 무난한 기본값
+
+
+def _is_quota_error(exc: Exception) -> bool:
+    msg = str(exc)
+    return "429" in msg or "RESOURCE_EXHAUSTED" in msg
 
 
 # PRD §5.1 시스템 프롬프트 — 한 글자도 임의로 바꾸지 않음.
@@ -150,11 +179,11 @@ def _build_user_prompt(
     )
 
 
-def _call_gemini(user_prompt: str) -> str:
+def _call_gemini(user_prompt: str, model: str) -> str:
     """단일 Gemini 호출. JSON 문자열 반환. 실패 시 예외 전파."""
     client = genai.Client(api_key=settings.GEMINI_API_KEY)
     response = client.models.generate_content(
-        model=settings.GEMINI_MODEL,
+        model=model,
         contents=user_prompt,
         config=types.GenerateContentConfig(
             system_instruction=_SYSTEM_PROMPT,
@@ -166,6 +195,33 @@ def _call_gemini(user_prompt: str) -> str:
     if not text:
         raise ClassificationError("Gemini 응답이 비어있습니다.")
     return text
+
+
+def _call_gemini_with_fallback(user_prompt: str) -> tuple[str, str]:
+    """1차 모델로 호출 → 429이면 fallback 모델로 즉시 재시도.
+
+    반환: (raw_json, used_model)
+    """
+    primary = settings.GEMINI_MODEL
+    fallback = settings.GEMINI_MODEL_FALLBACK
+
+    try:
+        return _call_gemini(user_prompt, primary), primary
+    except Exception as e:
+        if not _is_quota_error(e) or not fallback or fallback == primary:
+            raise
+
+    logger.info("primary model %s hit quota, retrying with fallback %s", primary, fallback)
+    try:
+        return _call_gemini(user_prompt, fallback), fallback
+    except Exception as e:
+        if _is_quota_error(e):
+            retry_after = _quota_retry_after(e)
+            raise QuotaExceededError(
+                f"무료 티어 분당 한도 초과 (primary={primary}, fallback={fallback})",
+                retry_after_sec=retry_after,
+            ) from e
+        raise
 
 
 def _parse_and_validate(
@@ -241,8 +297,13 @@ def analyze_article(
 
     for attempt in (1, 2):
         try:
-            raw = _call_gemini(user_prompt)
+            raw, used_model = _call_gemini_with_fallback(user_prompt)
             classified, core_facts = _parse_and_validate(raw, sentences)
+            if used_model != settings.GEMINI_MODEL:
+                logger.info("analyze used fallback model: %s", used_model)
+        except QuotaExceededError:
+            # 1차+fallback 모두 quota 초과 — retry는 의미 없음, 바로 throw
+            raise
         except (json.JSONDecodeError, ValidationError, ValueError) as e:
             logger.warning("analyze attempt %d: parse/validate failed: %s", attempt, e)
             last_error = e
