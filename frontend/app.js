@@ -492,3 +492,20 @@ for (const btn of els.modeButtons) {
 }
 
 setState("idle");
+
+// Day 14: 데이터 안내 배너 (첫 방문 시 1회) — localStorage에 dismiss 기록
+(function initDataBanner() {
+  const banner = document.getElementById("data-banner");
+  const dismiss = document.getElementById("data-banner-dismiss");
+  if (!banner || !dismiss) return;
+  try {
+    if (localStorage.getItem("cookie_notice_dismissed") === "1") return;
+  } catch (e) {
+    // localStorage 비활성 환경 — 그래도 배너는 표시
+  }
+  banner.classList.remove("hidden");
+  dismiss.addEventListener("click", () => {
+    try { localStorage.setItem("cookie_notice_dismissed", "1"); } catch (e) {}
+    banner.classList.add("hidden");
+  });
+})();

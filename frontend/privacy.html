@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>newslens — 개인정보 처리방침</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <main class="container">
+    <header class="site-header">
+      <h1 class="logo"><a href="./index.html" style="text-decoration:none;color:inherit">📰 newslens</a></h1>
+      <p class="tagline">개인정보 처리방침</p>
+    </header>
+
+    <article class="card legal-page">
+      <p class="legal-effective">시행일: 2026-05-23</p>
+
+      <h2>1. 수집하지 않는 정보</h2>
+      <p>NewsLens는 다음 정보를 <strong>수집·저장하지 않습니다.</strong></p>
+      <ul>
+        <li>이름, 이메일, 전화번호 등 개인 식별 정보</li>
+        <li>회원 가입 정보, 비밀번호</li>
+        <li>분석에 입력하신 기사의 <strong>원문 URL</strong> (sha256 해시값만 보관)</li>
+        <li>분석에 입력하신 기사의 <strong>본문 텍스트</strong></li>
+        <li>분석 결과(JSON)는 24시간만 메모리 캐시, 영구 저장하지 않음</li>
+      </ul>
+
+      <h2>2. 일시적으로 사용하는 정보</h2>
+      <p>서비스 운영을 위해 다음 정보를 <strong>일시적</strong>으로만 사용합니다.</p>
+      <ul>
+        <li><strong>접속 IP 주소</strong>: 요청 빈도 제한(시간당 20회) 검증 용도. 메모리에서 1시간 슬라이딩 윈도우 후 자동 폐기. 디스크 저장 없음.</li>
+        <li><strong>입력한 기사 URL</strong>: 24시간 결과 캐시 키(sha256)로 사용. 원문 URL은 캐시 만료 후 즉시 삭제.</li>
+      </ul>
+
+      <h2>3. 피드백 수집 시 저장하는 정보</h2>
+      <p>사용자가 분류 결과에 대한 피드백(👍/👎/카테고리 제안)을 보낼 때만 다음을 저장합니다.</p>
+      <ul>
+        <li>기사 URL의 sha256 해시 (역추적 불가능한 식별자)</li>
+        <li>문장 번호 (몇 번째 문장에 대한 피드백인지)</li>
+        <li>원래 분류 카테고리 / 사용자 제안 카테고리</li>
+        <li>피드백 유형 (thumbs_up / thumbs_down / category_correction)</li>
+        <li>UTC 타임스탬프</li>
+      </ul>
+      <p><strong>원문 URL, 기사 본문, 문장 텍스트, 사용자 식별 정보는 일체 저장되지 않습니다.</strong></p>
+
+      <h2>4. 외부 서비스 이용</h2>
+      <p>분석을 위해 다음 외부 서비스에 기사 본문이 전송됩니다.</p>
+      <ul>
+        <li><strong>Google Gemini API</strong> (https://ai.google.dev) — 사실/의견 분류 및 핵심 사실 요약을 위해 본문이 전송됩니다. Google의 API 데이터 사용 정책은 해당 약관을 따릅니다.</li>
+      </ul>
+
+      <h2>5. 쿠키</h2>
+      <p>NewsLens는 추적·광고용 쿠키를 사용하지 않습니다. 브라우저의 <code>localStorage</code>는 이 페이지의 안내 배너를 한 번 본 뒤 다시 표시하지 않기 위한 <code>cookie_notice_dismissed</code> 키 하나만 사용합니다.</p>
+
+      <h2>6. 결과의 한계</h2>
+      <p>본 분석은 AI 모델 기반 참고 자료이며, <strong>전문적 미디어 비평이나 사실 검증을 대체하지 않습니다.</strong> 최종 판단은 사용자에게 있습니다.</p>
+
+      <h2>7. 문의</h2>
+      <p>개선 의견은 GitHub 저장소의 Issues로 보내주시면 됩니다.</p>
+
+      <p class="legal-back"><a href="./index.html">← 분석 화면으로 돌아가기</a></p>
+    </article>
+
+    <footer class="site-footer">
+      <p class="disclaimer">© NewsLens MVP — AI 기반 참고 자료</p>
+    </footer>
+  </main>
+</body>
+</html>

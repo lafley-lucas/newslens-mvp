@@ -3,7 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="기사를 렌즈로 들여다본다 — 사실과 의견을 가려내는 미디어 필터" />
+  <meta name="description" content="기사를 렌즈로 들여다본다 — 한국 뉴스 기사의 사실과 의견을 문장별로 가려내는 미디어 필터. 핵심 사실 요약과 비사실 하이라이트 제공." />
+  <meta name="keywords" content="뉴스 분석, 사실 검증, 미디어 리터러시, 한국 뉴스, AI 분석, 팩트체크, 의견 분류" />
+  <meta name="theme-color" content="#534ab7" />
+  <meta name="robots" content="index, follow" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="newslens — 뉴스 기사 사실/의견 분석" />
+  <meta property="og:description" content="기사를 렌즈로 들여다본다 — 사실과 의견을 가려내는 미디어 필터" />
+  <meta property="og:locale" content="ko_KR" />
+  <meta property="og:site_name" content="newslens" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="newslens — 뉴스 기사 사실/의견 분석" />
+  <meta name="twitter:description" content="한국 뉴스 기사를 문장별로 분류하고 비사실만 하이라이트" />
+
   <title>newslens — 뉴스 기사 사실/의견 분석</title>
   <link rel="stylesheet" href="./style.css" />
 </head>
@@ -137,8 +153,23 @@
       <p class="disclaimer">
         본 분석은 AI 기반 참고 자료이며, 전문적 미디어 비평을 대체하지 않습니다.
       </p>
+      <p class="footer-links">
+        <a href="./privacy.html">개인정보 처리방침</a>
+        <span aria-hidden="true">·</span>
+        <a href="https://github.com/lafley-lucas/newslens-mvp" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </p>
     </footer>
   </main>
+
+  <!-- 데이터 안내 배너 (첫 방문 시 1회) -->
+  <div id="data-banner" class="data-banner hidden" role="dialog" aria-label="데이터 처리 안내">
+    <p class="data-banner-text">
+      NewsLens는 추적·광고 쿠키를 사용하지 않습니다. 분석 시 입력한 기사 본문은 <strong>Google Gemini API</strong>로 전송되며,
+      원문 URL과 본문은 저장되지 않습니다.
+      <a href="./privacy.html">자세히 보기</a>
+    </p>
+    <button id="data-banner-dismiss" type="button" class="primary-btn data-banner-btn">확인</button>
+  </div>
 
   <!-- 피드백 토스트 -->
   <div id="feedback-toast" class="feedback-toast" role="status" aria-live="polite"></div>
