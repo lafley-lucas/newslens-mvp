@@ -62,16 +62,12 @@
           <span class="step-icon" aria-hidden="true"></span>
           <span class="step-label">기사 본문 추출</span>
         </li>
-        <li data-step="classify" data-state="pending">
+        <li data-step="analyze" data-state="pending">
           <span class="step-icon" aria-hidden="true"></span>
-          <span class="step-label">문장별 사실/의견 분류</span>
-        </li>
-        <li data-step="digest" data-state="pending">
-          <span class="step-icon" aria-hidden="true"></span>
-          <span class="step-label">핵심 사실 요약</span>
+          <span class="step-label">사실/의견 분류 + 핵심 사실 요약</span>
         </li>
       </ol>
-      <p class="loading-note">최초 분석은 LLM 호출로 20~30초 정도 걸릴 수 있습니다.</p>
+      <p class="loading-note">최초 분석은 LLM 호출로 15~20초 정도 걸립니다. 같은 기사를 다시 분석하면 즉시 결과가 나옵니다.</p>
     </section>
 
     <!-- ============ 에러 ============ -->
@@ -80,8 +76,9 @@
       <button id="error-retry" type="button" class="secondary-btn">다시 시도</button>
     </section>
 
-    <!-- ============ 결과 (Day 7-8에 정식 화면, 지금은 임시 표시) ============ -->
+    <!-- ============ 결과 화면 (PRD §3, §9.2) ============ -->
     <section id="result-section" class="card result-card hidden" aria-labelledby="result-heading">
+      <!-- 메타 -->
       <div class="result-header">
         <h2 id="result-heading" class="result-title"></h2>
         <span id="cached-badge" class="cached-badge hidden" title="24시간 이내 동일 URL 캐시 결과">캐시됨</span>
@@ -92,22 +89,43 @@
         <span id="result-date"></span>
       </p>
 
-      <div class="result-summary">
-        <span class="chip chip-fact">사실 <span id="cnt-fact">-</span></span>
-        <span class="chip chip-claim">인용 <span id="cnt-claim">-</span></span>
-        <span class="chip chip-opinion">의견 <span id="cnt-opinion">-</span></span>
-        <span class="chip chip-framing">프레이밍 <span id="cnt-framing">-</span></span>
+      <!-- 사실 비율 바 -->
+      <div class="ratio-bar" aria-label="사실 비율">
+        <div class="ratio-segment ratio-fact" id="ratio-fact-seg"></div>
+        <div class="ratio-segment ratio-claim" id="ratio-claim-seg"></div>
+        <div class="ratio-segment ratio-opinion" id="ratio-opinion-seg"></div>
+        <div class="ratio-segment ratio-framing" id="ratio-framing-seg"></div>
+      </div>
+      <div class="ratio-legend">
+        <span class="legend-item"><span class="legend-dot legend-fact"></span>사실 <strong id="cnt-fact">-</strong></span>
+        <span class="legend-item"><span class="legend-dot legend-claim"></span>인용 <strong id="cnt-claim">-</strong></span>
+        <span class="legend-item"><span class="legend-dot legend-opinion"></span>의견 <strong id="cnt-opinion">-</strong></span>
+        <span class="legend-item"><span class="legend-dot legend-framing"></span>프레이밍 <strong id="cnt-framing">-</strong></span>
       </div>
 
+      <!-- 핵심 사실 카드 (읽기·분석 모드 모두 항상 표시 — PRD §2 기능D) -->
       <div class="fact-digest" id="fact-digest-block">
         <h3 class="fact-digest-title">📌 핵심 사실</h3>
         <ul id="fact-digest-list"></ul>
       </div>
 
-      <details class="raw-sentences">
-        <summary>분류된 문장 전체 보기 (Day 7~8에 본격 UI 예정)</summary>
-        <ol id="sentence-list" class="sentence-list"></ol>
-      </details>
+      <!-- 읽기 / 분석 모드 토글 (PRD §9.2) -->
+      <div class="mode-toggle" role="tablist" aria-label="보기 모드">
+        <button type="button" class="mode-btn active" data-mode="read" role="tab" aria-selected="true">읽기</button>
+        <button type="button" class="mode-btn" data-mode="analyze" role="tab" aria-selected="false">분석</button>
+      </div>
+
+      <!-- 분석 모드 안내 -->
+      <p id="analyze-hint" class="analyze-hint hidden">
+        왼쪽 점이 있는 문장은 일반 독자가 인지하기 어려운 비사실입니다. 탭하면 분석 이유가 보입니다.
+      </p>
+
+      <!-- 본문 (모드에 따라 마진점·아코디언 표시) -->
+      <article class="article-body" id="article-body" aria-live="polite"></article>
+
+      <p class="article-footnote">
+        AI 분석 결과는 완벽하지 않을 수 있습니다. 분류가 잘못됐다면 피드백을 보내주세요.
+      </p>
 
       <button id="new-analyze-btn" type="button" class="secondary-btn">다른 기사 분석하기</button>
     </section>

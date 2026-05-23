@@ -1,52 +1,59 @@
-// newslens Day 6 — 메인/로딩/결과 화면 상태 머신 + /api/analyze 호출
+// newslens Day 7~8 — 결과 화면 정식 UI (읽기/분석 모드 토글 + 마진점 + 아코디언)
 
 const API_BASE =
   window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
     ? "http://localhost:8000"
-    : ""; // 같은 origin에서 서빙되면 상대경로
+    : "";
 
 const DEBOUNCE_MS = 5000;
 
-// =========================================================================
-// DOM 캐시
-// =========================================================================
 const $ = (id) => document.getElementById(id);
+const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
 const els = {
-  // sections
   input: $("input-section"),
   loading: $("loading-section"),
   error: $("error-section"),
   result: $("result-section"),
-  // input form
+
   form: $("analyze-form"),
   urlInput: $("url-input"),
   textInput: $("text-input"),
   sourceInput: $("source-input"),
   analyzeBtn: $("analyze-btn"),
-  // loading
+
   loadingSteps: $("loading-steps"),
-  // error
+
   errorMsg: $("error-message"),
   errorRetry: $("error-retry"),
-  // result
+
   resultTitle: $("result-heading"),
   cachedBadge: $("cached-badge"),
   resultSource: $("result-source"),
   resultAuthor: $("result-author"),
   resultDate: $("result-date"),
+
+  ratioFactSeg: $("ratio-fact-seg"),
+  ratioClaimSeg: $("ratio-claim-seg"),
+  ratioOpinionSeg: $("ratio-opinion-seg"),
+  ratioFramingSeg: $("ratio-framing-seg"),
   cntFact: $("cnt-fact"),
   cntClaim: $("cnt-claim"),
   cntOpinion: $("cnt-opinion"),
   cntFraming: $("cnt-framing"),
+
   factDigestList: $("fact-digest-list"),
   factDigestBlock: $("fact-digest-block"),
-  sentenceList: $("sentence-list"),
+
+  modeButtons: $$(".mode-btn"),
+  analyzeHint: $("analyze-hint"),
+  articleBody: $("article-body"),
+
   newAnalyzeBtn: $("new-analyze-btn"),
 };
 
 // =========================================================================
-// 상태 머신: idle | loading | result | error
+// 상태 머신
 // =========================================================================
 function showOnly(sectionId) {
   for (const s of [els.input, els.loading, els.error, els.result]) {
@@ -69,6 +76,7 @@ function setState(state) {
       showOnly("result-section");
       stopLoadingSteps();
       els.analyzeBtn.disabled = false;
+      window.scrollTo({ top: 0, behavior: "smooth" });
       break;
     case "error":
       showOnly("error-section");
@@ -79,8 +87,7 @@ function setState(state) {
 }
 
 // =========================================================================
-// 로딩 단계 시뮬레이션 — 응답 시간을 정확히 모르므로 시간 기반 추정
-// 실제 응답 도착 시 stop 호출되어 즉시 결과로 전환됨
+// 로딩 단계 (호출 1회로 통합 — 2단계로 단순화)
 // =========================================================================
 let stepTimers = [];
 
@@ -92,25 +99,80 @@ function setStepState(name, state) {
 function startLoadingSteps() {
   stopLoadingSteps();
   setStepState("fetch", "active");
-  setStepState("classify", "pending");
-  setStepState("digest", "pending");
+  setStepState("analyze", "pending");
 
-  // 3초 후 fetch 완료, classify 시작
+  // 3초 후 추출 완료 추정, 분류·요약 단계로 전환
   stepTimers.push(setTimeout(() => {
     setStepState("fetch", "done");
-    setStepState("classify", "active");
+    setStepState("analyze", "active");
   }, 3000));
-
-  // 18초 후 classify 완료, digest 시작
-  stepTimers.push(setTimeout(() => {
-    setStepState("classify", "done");
-    setStepState("digest", "active");
-  }, 18000));
 }
 
 function stopLoadingSteps() {
   for (const t of stepTimers) clearTimeout(t);
   stepTimers = [];
+}
+
+// =========================================================================
+// 읽기 / 분석 모드
+// =========================================================================
+let currentMode = "read";
+
+function setMode(mode) {
+  currentMode = mode;
+  els.articleBody.dataset.mode = mode;
+  els.analyzeHint.classList.toggle("hidden", mode !== "analyze");
+
+  for (const btn of els.modeButtons) {
+    const active = btn.dataset.mode === mode;
+    btn.classList.toggle("active", active);
+    btn.setAttribute("aria-selected", active ? "true" : "false");
+  }
+
+  // 모드 전환 시 열려있던 rationale 모두 닫기
+  closeAllRationales();
+}
+
+function closeAllRationales() {
+  for (const r of els.articleBody.querySelectorAll(".rationale")) {
+    r.remove();
+  }
+  for (const s of els.articleBody.querySelectorAll(".sentence.expanded")) {
+    s.classList.remove("expanded");
+  }
+}
+
+function toggleRationale(sentenceEl, sentence) {
+  // 같은 문장 재클릭 → 닫기
+  if (sentenceEl.classList.contains("expanded")) {
+    closeAllRationales();
+    return;
+  }
+  // 다른 문장 클릭 → 기존 닫고 새로 열기
+  closeAllRationales();
+  sentenceEl.classList.add("expanded");
+
+  const rationale = document.createElement("div");
+  rationale.className = "rationale";
+
+  const label = document.createElement("span");
+  label.className = "rationale-label";
+  label.dataset.category = sentence.category;
+  label.textContent = categoryLabel(sentence.category);
+  rationale.appendChild(label);
+
+  rationale.appendChild(document.createTextNode(sentence.rationale || "(분류 이유가 제공되지 않음)"));
+
+  sentenceEl.insertAdjacentElement("afterend", rationale);
+}
+
+function categoryLabel(cat) {
+  return {
+    FACT: "사실",
+    CLAIM: "인용",
+    OPINION: "의견",
+    FRAMING: "프레이밍",
+  }[cat] || cat;
 }
 
 // =========================================================================
@@ -124,13 +186,20 @@ function renderResult(data) {
 
   els.cachedBadge.classList.toggle("hidden", !data.cached);
 
+  // 비율 바 + 범례
   const s = data.analysis.summary;
+  const total = s.total_sentences || 1;
+  const pct = (n) => `${(n / total * 100).toFixed(1)}%`;
+  els.ratioFactSeg.style.width = pct(s.fact_count);
+  els.ratioClaimSeg.style.width = pct(s.claim_count);
+  els.ratioOpinionSeg.style.width = pct(s.opinion_count);
+  els.ratioFramingSeg.style.width = pct(s.framing_count);
   els.cntFact.textContent = s.fact_count;
   els.cntClaim.textContent = s.claim_count;
   els.cntOpinion.textContent = s.opinion_count;
   els.cntFraming.textContent = s.framing_count;
 
-  // Fact digest
+  // 핵심 사실 카드
   els.factDigestList.innerHTML = "";
   const facts = data.analysis.fact_digest.core_facts || [];
   if (facts.length === 0) {
@@ -144,36 +213,35 @@ function renderResult(data) {
     }
   }
 
-  // 분류된 문장 (임시 — Day 7~8 정식 UI 예정)
-  els.sentenceList.innerHTML = "";
+  // 본문 — 각 문장을 <p class="sentence"> 로 (마진점·아코디언 대상)
+  els.articleBody.innerHTML = "";
   for (const sentence of data.analysis.sentences) {
-    const li = document.createElement("li");
-    const label = document.createElement("strong");
-    label.textContent = `[${sentence.category}] `;
-    label.style.color = ({
-      FACT: "var(--color-fact)",
-      CLAIM: "var(--color-claim)",
-      OPINION: "var(--color-opinion)",
-      FRAMING: "var(--color-framing)",
-    })[sentence.category] || "inherit";
-    li.appendChild(label);
-    li.appendChild(document.createTextNode(sentence.text));
+    const p = document.createElement("p");
+    p.className = "sentence";
+    p.dataset.index = sentence.index;
+    p.dataset.category = sentence.category;
+    p.dataset.significant = sentence.significant ? "true" : "false";
+    p.textContent = sentence.text;
     if (sentence.significant) {
-      const star = document.createElement("span");
-      star.textContent = " ★";
-      star.title = "독자가 인지하기 어려운 비사실";
-      star.style.color = "var(--color-accent)";
-      li.appendChild(star);
+      p.setAttribute("role", "button");
+      p.setAttribute("tabindex", "0");
+      p.title = "탭하면 분석 이유가 보입니다";
+      p.addEventListener("click", () => toggleRationale(p, sentence));
+      p.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          toggleRationale(p, sentence);
+        }
+      });
     }
-    els.sentenceList.appendChild(li);
+    els.articleBody.appendChild(p);
   }
 
+  // 기본 모드: 읽기
+  setMode("read");
   setState("result");
 }
 
-// =========================================================================
-// 에러 표시
-// =========================================================================
 function renderError(message) {
   els.errorMsg.textContent = message;
   setState("error");
@@ -197,7 +265,6 @@ async function analyze() {
     return;
   }
 
-  // 디바운스 (Day 2)
   const now = Date.now();
   const wait = DEBOUNCE_MS - (now - lastSubmitAt);
   if (wait > 0) {
@@ -253,6 +320,7 @@ els.form.addEventListener("submit", (e) => {
 });
 
 els.errorRetry.addEventListener("click", () => setState("idle"));
+
 els.newAnalyzeBtn.addEventListener("click", () => {
   els.urlInput.value = "";
   els.textInput.value = "";
@@ -261,5 +329,8 @@ els.newAnalyzeBtn.addEventListener("click", () => {
   els.urlInput.focus();
 });
 
-// 초기 상태
+for (const btn of els.modeButtons) {
+  btn.addEventListener("click", () => setMode(btn.dataset.mode));
+}
+
 setState("idle");

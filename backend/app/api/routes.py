@@ -12,8 +12,7 @@ from ..models.schemas import (
 from ..services import cache, in_flight
 from ..services.classifier import (
     ClassificationError,
-    build_fact_digest,
-    classify_sentences,
+    analyze_article,
     compute_summary,
 )
 from ..services.fetcher import (
@@ -164,7 +163,7 @@ def _do_analyze(req: ExtractRequest, url_str: str | None) -> AnalyzeResponse:
     meta = _article_meta(article, req)
 
     try:
-        classified, llm_warnings = classify_sentences(
+        classified, fact_digest, llm_warnings = analyze_article(
             title=meta.title,
             source=meta.source,
             sentences=sentences,
@@ -174,7 +173,6 @@ def _do_analyze(req: ExtractRequest, url_str: str | None) -> AnalyzeResponse:
 
     warnings.extend(llm_warnings)
     summary = compute_summary(classified)
-    fact_digest = build_fact_digest(title=meta.title, sentences=classified)
 
     return AnalyzeResponse(
         article=meta,

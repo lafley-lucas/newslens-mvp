@@ -294,24 +294,24 @@ textarea {
 }
 
 /* =========================================================================
-   Result card (임시 — Day 7~8 정식화 예정)
+   Result card — PRD §3, §9.2 (Day 7~8 정식)
    ========================================================================= */
+
+/* 헤더 */
 .result-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
-
 .result-title {
   margin: 0;
-  font-size: 18px;
+  font-size: 19px;
   line-height: 1.4;
-  font-weight: 600;
+  font-weight: 700;
   flex: 1;
 }
-
 .cached-badge {
   flex-shrink: 0;
   font-size: 11px;
@@ -323,47 +323,63 @@ textarea {
   white-space: nowrap;
 }
 
+/* 메타 라인 */
 .result-meta {
-  margin: 0 0 16px;
+  margin: 0 0 18px;
   color: var(--color-muted);
   font-size: 13px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--color-border);
 }
 .result-meta span:not(:empty) + span:not(:empty)::before {
   content: " · ";
   color: var(--color-subtle);
 }
 
-.result-summary {
+/* 사실 비율 바 */
+.ratio-bar {
+  display: flex;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--color-border);
+  margin-bottom: 8px;
+}
+.ratio-segment {
+  height: 100%;
+  transition: width 0.4s ease;
+}
+.ratio-fact    { background: var(--color-fact); }
+.ratio-claim   { background: var(--color-claim); }
+.ratio-opinion { background: var(--color-opinion); }
+.ratio-framing { background: var(--color-framing); }
+
+.ratio-legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 12px;
   margin-bottom: 18px;
+  font-size: 12px;
+  color: var(--color-muted);
 }
+.legend-item { display: inline-flex; align-items: center; gap: 5px; }
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.legend-fact    { background: var(--color-fact); }
+.legend-claim   { background: var(--color-claim); }
+.legend-opinion { background: var(--color-opinion); }
+.legend-framing { background: var(--color-framing); }
+.ratio-legend strong { color: var(--color-text); font-weight: 700; margin-left: 2px; }
 
-.chip {
-  font-size: 13px;
-  padding: 5px 10px;
-  border-radius: 999px;
-  background: var(--color-bg);
-  border: 1px solid var(--color-border);
-  font-weight: 500;
-}
-.chip span {
-  font-weight: 700;
-  margin-left: 2px;
-}
-.chip-fact    { color: var(--color-fact); }
-.chip-claim   { color: var(--color-claim); }
-.chip-opinion { color: var(--color-opinion); }
-.chip-framing { color: var(--color-framing); }
-
+/* 핵심 사실 카드 (항상 표시 — 캐주얼 사용자 가치) */
 .fact-digest {
   background: var(--color-accent-soft);
+  border-left: 3px solid var(--color-accent);
   border-radius: var(--radius-sm);
   padding: 14px 16px;
-  margin-bottom: 18px;
+  margin-bottom: 22px;
 }
 .fact-digest-title {
   margin: 0 0 10px;
@@ -375,27 +391,133 @@ textarea {
   margin: 0;
   padding-left: 18px;
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.65;
 }
 .fact-digest li { margin-bottom: 6px; }
 .fact-digest li:last-child { margin-bottom: 0; }
+.fact-digest.hidden { display: none; }
 
-.raw-sentences {
+/* 읽기/분석 토글 (PRD §9.2) */
+.mode-toggle {
+  display: inline-flex;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 3px;
   margin-bottom: 14px;
 }
-.raw-sentences summary {
-  cursor: pointer;
+.mode-btn {
+  appearance: none;
+  background: transparent;
+  border: none;
+  padding: 7px 18px;
   font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
   color: var(--color-muted);
-  padding: 6px 0;
+  cursor: pointer;
+  border-radius: 999px;
+  min-height: 32px;
+  transition: background 0.15s, color 0.15s;
+}
+.mode-btn.active {
+  background: var(--color-surface);
+  color: var(--color-accent);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
-.sentence-list {
-  margin: 12px 0 0;
-  padding-left: 24px;
-  font-size: 14px;
+.analyze-hint {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  background: #fff8e6;
+  border-left: 3px solid #f0b429;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: #6b5400;
+  line-height: 1.5;
 }
-.sentence-list li { margin-bottom: 8px; }
+.analyze-hint.hidden { display: none; }
+
+/* 기사 본문 (읽기·분석 공통 컨테이너) */
+.article-body {
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--color-text);
+  margin-bottom: 18px;
+  padding-left: 18px; /* 마진점 공간 */
+}
+.article-body .sentence {
+  margin: 0 0 12px;
+  position: relative;
+}
+.article-body .sentence:last-child { margin-bottom: 0; }
+
+/* 분석 모드일 때만 significant=true 문장에 마진점 (PRD §9.2: 6px) */
+.article-body[data-mode="analyze"] .sentence[data-significant="true"] {
+  cursor: pointer;
+}
+.article-body[data-mode="analyze"] .sentence[data-significant="true"]::before {
+  content: "";
+  position: absolute;
+  left: -18px;
+  top: 0.55em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+/* 카테고리별 마진점 색 */
+.article-body[data-mode="analyze"] .sentence[data-significant="true"][data-category="CLAIM"]::before {
+  background: var(--color-claim);
+}
+.article-body[data-mode="analyze"] .sentence[data-significant="true"][data-category="OPINION"]::before {
+  background: var(--color-opinion);
+}
+.article-body[data-mode="analyze"] .sentence[data-significant="true"][data-category="FRAMING"]::before {
+  background: var(--color-framing);
+}
+
+.article-body[data-mode="analyze"] .sentence[data-significant="true"]:hover {
+  background: var(--color-bg);
+  border-radius: 4px;
+}
+.article-body[data-mode="analyze"] .sentence.expanded {
+  background: var(--color-accent-soft);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  margin-left: -10px;
+}
+
+/* 분류 이유 아코디언 */
+.rationale {
+  margin: 6px 0 4px;
+  padding: 10px 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--color-muted);
+}
+.rationale .rationale-label {
+  display: inline-block;
+  font-weight: 700;
+  margin-right: 6px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+}
+.rationale .rationale-label[data-category="CLAIM"]   { background: rgba(8,145,178,.1); color: var(--color-claim); }
+.rationale .rationale-label[data-category="OPINION"] { background: rgba(234,88,12,.1); color: var(--color-opinion); }
+.rationale .rationale-label[data-category="FRAMING"] { background: rgba(31,41,55,.1); color: var(--color-framing); }
+.rationale .rationale-label[data-category="FACT"]    { background: rgba(37,99,235,.1); color: var(--color-fact); }
+
+.article-footnote {
+  margin: 18px 0;
+  font-size: 12px;
+  color: var(--color-subtle);
+  text-align: center;
+}
 
 /* =========================================================================
    Footer
