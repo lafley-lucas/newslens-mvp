@@ -3,58 +3,118 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>newslens — 뉴스 기사 분석</title>
+  <meta name="description" content="기사를 렌즈로 들여다본다 — 사실과 의견을 가려내는 미디어 필터" />
+  <title>newslens — 뉴스 기사 사실/의견 분석</title>
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
   <main class="container">
-    <header>
-      <h1>📰 newslens</h1>
-      <p class="tagline">기사를 렌즈로 들여다본다 — 사실과 의견을 가려냅니다.</p>
+    <header class="site-header">
+      <h1 class="logo">📰 newslens</h1>
+      <p class="tagline">기사를 렌즈로 들여다본다</p>
     </header>
 
-    <section class="input-card">
-      <label for="url-input" class="input-label">뉴스 기사 URL</label>
-      <div class="url-row">
+    <!-- ============ 입력 화면 ============ -->
+    <section id="input-section" class="card input-card" aria-labelledby="input-heading">
+      <h2 id="input-heading" class="card-heading">뉴스 기사 URL을 붙여넣으세요</h2>
+
+      <form id="analyze-form" class="url-row" autocomplete="off" novalidate>
         <input
           id="url-input"
           type="url"
-          placeholder="https://news.example.com/article/123"
-          autocomplete="off"
+          inputmode="url"
+          placeholder="https://news.example.com/article/..."
+          aria-label="뉴스 기사 URL"
         />
-        <button id="analyze-btn" type="button">분석</button>
-      </div>
+        <button id="analyze-btn" type="submit" class="primary-btn">
+          분석하기
+        </button>
+      </form>
 
       <details class="text-fallback">
-        <summary>URL이 안 되나요? 본문 직접 입력</summary>
+        <summary>URL이 안 되나요? 본문 직접 붙여넣기</summary>
         <textarea
           id="text-input"
           rows="8"
-          placeholder="기사 본문을 여기에 붙여넣으세요..."
+          placeholder="기사 본문을 여기에 붙여넣으세요. 최소 10자 이상."
+          aria-label="기사 본문"
         ></textarea>
-        <input id="source-input" type="text" placeholder="기사 출처 (선택, 예: 조선일보)" />
+        <input
+          id="source-input"
+          type="text"
+          placeholder="기사 출처 (선택, 예: 조선일보)"
+          aria-label="기사 출처"
+        />
       </details>
+
+      <p class="categories-hint">
+        현재 지원: <strong>경제·금융</strong> · <strong>과학·기술·IT</strong>
+        <span class="hint-extra">(다른 카테고리도 작동하지만 최적화 전입니다)</span>
+      </p>
     </section>
 
-    <section id="status" class="status hidden" aria-live="polite"></section>
+    <!-- ============ 로딩 화면 ============ -->
+    <section id="loading-section" class="card loading-card hidden" aria-live="polite" aria-busy="true">
+      <div class="spinner" aria-hidden="true"></div>
+      <h2 class="loading-title">기사를 분석하고 있습니다</h2>
+      <ol class="loading-steps" id="loading-steps">
+        <li data-step="fetch" data-state="active">
+          <span class="step-icon" aria-hidden="true"></span>
+          <span class="step-label">기사 본문 추출</span>
+        </li>
+        <li data-step="classify" data-state="pending">
+          <span class="step-icon" aria-hidden="true"></span>
+          <span class="step-label">문장별 사실/의견 분류</span>
+        </li>
+        <li data-step="digest" data-state="pending">
+          <span class="step-icon" aria-hidden="true"></span>
+          <span class="step-label">핵심 사실 요약</span>
+        </li>
+      </ol>
+      <p class="loading-note">최초 분석은 LLM 호출로 20~30초 정도 걸릴 수 있습니다.</p>
+    </section>
 
-    <section id="result" class="result hidden">
-      <div class="result-meta">
-        <h2 id="article-title"></h2>
-        <p class="meta-line">
-          <span id="article-source"></span>
-          <span id="article-author"></span>
-          <span id="article-date"></span>
-        </p>
-        <p class="parser-info">파서: <span id="parser-used"></span> · 문장 <span id="sentence-count"></span>개</p>
+    <!-- ============ 에러 ============ -->
+    <section id="error-section" class="card error-card hidden" role="alert">
+      <p id="error-message"></p>
+      <button id="error-retry" type="button" class="secondary-btn">다시 시도</button>
+    </section>
+
+    <!-- ============ 결과 (Day 7-8에 정식 화면, 지금은 임시 표시) ============ -->
+    <section id="result-section" class="card result-card hidden" aria-labelledby="result-heading">
+      <div class="result-header">
+        <h2 id="result-heading" class="result-title"></h2>
+        <span id="cached-badge" class="cached-badge hidden" title="24시간 이내 동일 URL 캐시 결과">캐시됨</span>
+      </div>
+      <p class="result-meta">
+        <span id="result-source"></span>
+        <span id="result-author"></span>
+        <span id="result-date"></span>
+      </p>
+
+      <div class="result-summary">
+        <span class="chip chip-fact">사실 <span id="cnt-fact">-</span></span>
+        <span class="chip chip-claim">인용 <span id="cnt-claim">-</span></span>
+        <span class="chip chip-opinion">의견 <span id="cnt-opinion">-</span></span>
+        <span class="chip chip-framing">프레이밍 <span id="cnt-framing">-</span></span>
       </div>
 
-      <ol id="sentence-list" class="sentence-list"></ol>
+      <div class="fact-digest" id="fact-digest-block">
+        <h3 class="fact-digest-title">📌 핵심 사실</h3>
+        <ul id="fact-digest-list"></ul>
+      </div>
+
+      <details class="raw-sentences">
+        <summary>분류된 문장 전체 보기 (Day 7~8에 본격 UI 예정)</summary>
+        <ol id="sentence-list" class="sentence-list"></ol>
+      </details>
+
+      <button id="new-analyze-btn" type="button" class="secondary-btn">다른 기사 분석하기</button>
     </section>
 
-    <footer>
+    <footer class="site-footer">
       <p class="disclaimer">
-        Day 1 프리뷰 — 문장 분리까지만 동작합니다. 분류 기능은 Day 3부터.
+        본 분석은 AI 기반 참고 자료이며, 전문적 미디어 비평을 대체하지 않습니다.
       </p>
     </footer>
   </main>
