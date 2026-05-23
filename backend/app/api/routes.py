@@ -9,7 +9,7 @@ from ..models.schemas import (
     ExtractResponse,
     Sentence,
 )
-from ..services import in_flight
+from ..services import cache, in_flight
 from ..services.classifier import (
     ClassificationError,
     build_fact_digest,
@@ -104,24 +104,50 @@ def _article_meta(article: ParsedArticle, req: ExtractRequest) -> ArticleMeta:
     dependencies=[Depends(check_rate_limit)],
 )
 def analyze(req: ExtractRequest) -> AnalyzeResponse:
-    """추출 + 사실/의견 분류 (PRD §10). Day 3 산출물.
+    """추출 + 사실/의견 분류 + Fact Digest (PRD §10).
 
-    Day 4에 Fact Digest, Day 5에 캐싱 추가 예정.
+    Day 5부터 URL 캐시(TTL 24h) 적용. 텍스트 직접 입력은 캐시 제외.
     """
     if not req.has_input():
         raise HTTPException(status_code=400, detail="url 또는 text 중 하나는 필수입니다.")
 
     url_str = str(req.url) if req.url is not None else None
-    lock_key = in_flight.url_key(url_str) if url_str else None
+    cache_key = in_flight.url_key(url_str) if url_str else None
+
+    # 1차 캐시 조회 — 락 없이 빠른 경로
+    if cache_key:
+        hit = _load_from_cache(cache_key)
+        if hit is not None:
+            return hit
 
     try:
-        with in_flight.acquire(lock_key):
-            return _do_analyze(req, url_str)
+        with in_flight.acquire(cache_key):
+            # 락 안에서 2차 조회 — 직전에 다른 요청이 채워뒀을 수 있음
+            if cache_key:
+                hit = _load_from_cache(cache_key)
+                if hit is not None:
+                    return hit
+
+            response = _do_analyze(req, url_str)
+
+            if cache_key:
+                cache.set(cache_key, response.model_dump(mode="json"))
+
+            return response
     except in_flight.AlreadyInFlight:
         raise HTTPException(
             status_code=409,
             detail="이 기사는 이미 분석 중입니다. 잠시 후 다시 시도해주세요.",
         )
+
+
+def _load_from_cache(cache_key: str) -> AnalyzeResponse | None:
+    cached_dump = cache.get(cache_key)
+    if cached_dump is None:
+        return None
+    resp = AnalyzeResponse.model_validate(cached_dump)
+    resp.cached = True
+    return resp
 
 
 def _do_analyze(req: ExtractRequest, url_str: str | None) -> AnalyzeResponse:

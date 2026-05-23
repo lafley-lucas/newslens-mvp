@@ -82,6 +82,7 @@ class AnalyzeResponse(BaseModel):
     parser: str
     analysis: AnalysisBlock
     warnings: list[str] = Field(default_factory=list)
+    cached: bool = False  # Day 5: URL 캐시 히트 여부
 
 
 class ErrorResponse(BaseModel):
