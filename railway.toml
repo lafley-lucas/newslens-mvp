@@ -1,0 +1,18 @@
+# Railway 배포 설정 — 백엔드만 (프론트는 GitHub Pages)
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "backend/Dockerfile"
+buildContext = "backend"
+
+[deploy]
+healthcheckPath = "/api/health"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+[deploy.envs]
+# Railway 대시보드에서 직접 설정해야 하는 변수 (예시값 X)
+# - GEMINI_API_KEY (필수)
+# - GEMINI_MODEL (선택, 기본 gemini-2.5-flash)
+# - CORS_ALLOW_ORIGINS (예: https://lafley-lucas.github.io)
+# - APP_ENV=production

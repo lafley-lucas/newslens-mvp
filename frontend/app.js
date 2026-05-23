@@ -1,9 +1,20 @@
 // newslens Day 7~8 — 결과 화면 정식 UI (읽기/분석 모드 토글 + 마진점 + 아코디언)
 
-const API_BASE =
-  window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
-    ? "http://localhost:8000"
-    : "";
+// 백엔드 base URL — 환경별 매핑
+// 1) window.NEWSLENS_API_BASE가 있으면 그걸 우선 (HTML에서 inline 주입 가능)
+// 2) localhost/127.0.0.1이면 dev 백엔드 (http://localhost:8000)
+// 3) 그 외 (GitHub Pages 등 배포)는 환경변수로 주입된 값 사용 — 없으면 같은 origin
+function resolveApiBase() {
+  if (typeof window.NEWSLENS_API_BASE === "string" && window.NEWSLENS_API_BASE) {
+    return window.NEWSLENS_API_BASE.replace(/\/$/, "");
+  }
+  const host = window.location.hostname;
+  if (host === "localhost" || host === "127.0.0.1") {
+    return "http://localhost:8000";
+  }
+  return ""; // 같은 origin — 백엔드와 함께 서빙되는 경우
+}
+const API_BASE = resolveApiBase();
 
 const DEBOUNCE_MS = 5000;
 

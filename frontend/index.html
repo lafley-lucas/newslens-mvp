@@ -143,6 +143,13 @@
   <!-- 피드백 토스트 -->
   <div id="feedback-toast" class="feedback-toast" role="status" aria-live="polite"></div>
 
+  <!-- 배포 환경 백엔드 URL 주입 자리.
+       프로덕션에서는 아래 줄을 활성화하고 Railway URL로 교체:
+       window.NEWSLENS_API_BASE = "https://newslens-mvp.up.railway.app";
+  -->
+  <script>
+    // window.NEWSLENS_API_BASE = "";  // 배포 시 백엔드 URL 입력
+  </script>
   <script src="./app.js"></script>
 </body>
 </html>
