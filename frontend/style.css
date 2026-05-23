@@ -542,6 +542,73 @@ textarea {
   text-align: center;
 }
 
+/* 피드백 (Day 10) — rationale 아코디언 안에 들어감 */
+.feedback-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--color-border);
+  font-size: 12px;
+  color: var(--color-muted);
+}
+.feedback-label { color: var(--color-subtle); }
+.feedback-btn {
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 12px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-family: inherit;
+  color: var(--color-muted);
+  cursor: pointer;
+  min-height: 28px;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.feedback-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+.feedback-btn.sent {
+  background: var(--color-success);
+  border-color: var(--color-success);
+  color: white;
+  cursor: default;
+}
+.feedback-select {
+  padding: 3px 8px;
+  font-size: 12px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 4px;
+  background: var(--color-surface);
+  font-family: inherit;
+  color: var(--color-text);
+  min-height: 28px;
+}
+.feedback-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  background: var(--color-text);
+  color: white;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 13px;
+  box-shadow: var(--shadow-md);
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.2s;
+  pointer-events: none;
+}
+.feedback-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-4px);
+}
+
 /* =========================================================================
    Footer
    ========================================================================= */

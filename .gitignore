@@ -26,4 +26,5 @@ desktop.ini
 backend/.env
 backend/*.db
 backend/cache/
+backend/data/
 *.log

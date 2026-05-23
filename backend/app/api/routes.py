@@ -7,9 +7,12 @@ from ..models.schemas import (
     ArticleMeta,
     ExtractRequest,
     ExtractResponse,
+    FeedbackRequest,
+    FeedbackResponse,
+    FeedbackType,
     Sentence,
 )
-from ..services import cache, content_guard, in_flight
+from ..services import cache, content_guard, db, in_flight
 from ..services.classifier import (
     ClassificationError,
     QuotaExceededError,
@@ -104,12 +107,14 @@ def _fetch_and_split(req: ExtractRequest, url_str: str | None) -> tuple[ParsedAr
 
 
 def _article_meta(article: ParsedArticle, req: ExtractRequest) -> ArticleMeta:
+    url_hash = in_flight.url_key(article.url) if article.url else None
     return ArticleMeta(
         title=article.title,
         source=article.source or req.source,
         date=article.date,
         author=article.author,
         url=article.url,
+        url_hash=url_hash,
     )
 
 
@@ -237,3 +242,43 @@ def _do_analyze(req: ExtractRequest, url_str: str | None) -> AnalyzeResponse:
         warnings=warnings,
         notices=notices,
     )
+
+
+# =========================================================================
+# Day 10: 피드백 수집 (PRD §10 §15 — 원문 절대 미저장)
+# =========================================================================
+
+@router.post(
+    "/feedback",
+    response_model=FeedbackResponse,
+    dependencies=[Depends(check_rate_limit)],
+)
+def submit_feedback(req: FeedbackRequest) -> FeedbackResponse:
+    """사용자 피드백 수집.
+
+    데이터 정책:
+    - article_url_hash만 저장 (원문 URL 절대 미저장)
+    - sentence_index + original/suggested category만 저장
+    - 원문 문장 텍스트 미저장
+    - timestamp는 DB가 자동 (CURRENT_TIMESTAMP)
+    """
+    # 단순 thumbs면 suggested_category 무시
+    suggested = req.suggested_category
+    if req.feedback_type != FeedbackType.CATEGORY_CORRECTION:
+        suggested = None
+
+    # category_correction이면 suggested_category 필수
+    if req.feedback_type == FeedbackType.CATEGORY_CORRECTION and suggested is None:
+        raise HTTPException(
+            status_code=400,
+            detail="category_correction 피드백에는 suggested_category가 필요합니다.",
+        )
+
+    fid = db.insert_feedback(
+        article_url_hash=req.article_url_hash,
+        sentence_index=req.sentence_index,
+        original_category=req.original_category.value,
+        feedback_type=req.feedback_type.value,
+        suggested_category=suggested.value if suggested else None,
+    )
+    return FeedbackResponse(id=fid)

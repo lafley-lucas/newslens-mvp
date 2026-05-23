@@ -127,7 +127,7 @@
       <article class="article-body" id="article-body" aria-live="polite"></article>
 
       <p class="article-footnote">
-        AI 분석 결과는 완벽하지 않을 수 있습니다. 분류가 잘못됐다면 피드백을 보내주세요.
+        AI 분석 결과는 완벽하지 않을 수 있습니다. 분석 모드의 강조 문장을 탭하면 분류 이유와 함께 피드백을 보낼 수 있습니다.
       </p>
 
       <button id="new-analyze-btn" type="button" class="secondary-btn">다른 기사 분석하기</button>
@@ -139,6 +139,9 @@
       </p>
     </footer>
   </main>
+
+  <!-- 피드백 토스트 -->
+  <div id="feedback-toast" class="feedback-toast" role="status" aria-live="polite"></div>
 
   <script src="./app.js"></script>
 </body>

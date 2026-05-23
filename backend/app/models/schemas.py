@@ -26,6 +26,7 @@ class ArticleMeta(BaseModel):
     date: Optional[str] = None
     author: Optional[str] = None
     url: Optional[str] = None
+    url_hash: Optional[str] = None  # 피드백 식별자 (원문 URL은 미전송, hash만)
     type: str = "news"  # "news" | "opinion" — 칼럼/사설로 보이면 "opinion"
 
 
@@ -91,3 +92,26 @@ class ErrorResponse(BaseModel):
     status: str = "error"
     code: str
     message: str
+
+
+# =========================================================================
+# 피드백 (Day 10) — PRD §10 §15: 원문 텍스트/URL은 절대 저장하지 않음
+# =========================================================================
+
+class FeedbackType(str, Enum):
+    THUMBS_UP = "thumbs_up"
+    THUMBS_DOWN = "thumbs_down"
+    CATEGORY_CORRECTION = "category_correction"
+
+
+class FeedbackRequest(BaseModel):
+    article_url_hash: str = Field(min_length=8, max_length=128)
+    sentence_index: int = Field(ge=1)
+    original_category: Category
+    feedback_type: FeedbackType
+    suggested_category: Optional[Category] = None
+
+
+class FeedbackResponse(BaseModel):
+    status: str = "success"
+    id: int

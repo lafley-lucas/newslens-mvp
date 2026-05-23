@@ -46,6 +46,7 @@ const els = {
   factDigestBlock: $("fact-digest-block"),
 
   noticesBlock: $("notices-block"),
+  feedbackToast: $("feedback-toast"),
 
   modeButtons: $$(".mode-btn"),
   analyzeHint: $("analyze-hint"),
@@ -119,6 +120,13 @@ function stopLoadingSteps() {
 // 읽기 / 분석 모드
 // =========================================================================
 let currentMode = "read";
+let currentUrlHash = null; // Day 10: 피드백 식별자 (없으면 텍스트 입력 → 피드백 비활성)
+const CATEGORY_LABELS = {
+  FACT: "사실",
+  CLAIM: "인용",
+  OPINION: "의견",
+  FRAMING: "프레이밍",
+};
 
 function setMode(mode) {
   currentMode = mode;
@@ -145,12 +153,10 @@ function closeAllRationales() {
 }
 
 function toggleRationale(sentenceEl, sentence) {
-  // 같은 문장 재클릭 → 닫기
   if (sentenceEl.classList.contains("expanded")) {
     closeAllRationales();
     return;
   }
-  // 다른 문장 클릭 → 기존 닫고 새로 열기
   closeAllRationales();
   sentenceEl.classList.add("expanded");
 
@@ -165,22 +171,145 @@ function toggleRationale(sentenceEl, sentence) {
 
   rationale.appendChild(document.createTextNode(sentence.rationale || "(분류 이유가 제공되지 않음)"));
 
+  // Day 10: 피드백 행 (URL 입력일 때만)
+  const feedbackRow = buildFeedbackRow(sentence);
+  if (feedbackRow) rationale.appendChild(feedbackRow);
+
   sentenceEl.insertAdjacentElement("afterend", rationale);
 }
 
 function categoryLabel(cat) {
-  return {
-    FACT: "사실",
-    CLAIM: "인용",
-    OPINION: "의견",
-    FRAMING: "프레이밍",
-  }[cat] || cat;
+  return CATEGORY_LABELS[cat] || cat;
+}
+
+// =========================================================================
+// 피드백 (Day 10)
+// =========================================================================
+let toastTimer = null;
+function showToast(message) {
+  els.feedbackToast.textContent = message;
+  els.feedbackToast.classList.add("show");
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    els.feedbackToast.classList.remove("show");
+  }, 2200);
+}
+
+async function sendFeedback(payload) {
+  try {
+    const resp = await fetch(`${API_BASE}/api/feedback`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      showToast(err.detail || "피드백 전송에 실패했습니다");
+      return false;
+    }
+    return true;
+  } catch (e) {
+    showToast(`네트워크 오류: ${e.message}`);
+    return false;
+  }
+}
+
+function buildFeedbackRow(sentence) {
+  // URL 입력이 아니면 피드백 비활성 (백엔드가 hash 식별자 필요)
+  if (!currentUrlHash) return null;
+
+  const row = document.createElement("div");
+  row.className = "feedback-row";
+
+  const label = document.createElement("span");
+  label.className = "feedback-label";
+  label.textContent = "이 분류가 맞나요?";
+  row.appendChild(label);
+
+  const upBtn = document.createElement("button");
+  upBtn.type = "button";
+  upBtn.className = "feedback-btn";
+  upBtn.textContent = "👍";
+  upBtn.title = "분류가 맞다";
+  upBtn.addEventListener("click", async (e) => {
+    e.stopPropagation();
+    if (upBtn.classList.contains("sent")) return;
+    const ok = await sendFeedback({
+      article_url_hash: currentUrlHash,
+      sentence_index: sentence.index,
+      original_category: sentence.category,
+      feedback_type: "thumbs_up",
+    });
+    if (ok) { upBtn.classList.add("sent"); upBtn.textContent = "👍 전송됨"; showToast("피드백 감사합니다"); }
+  });
+  row.appendChild(upBtn);
+
+  const downBtn = document.createElement("button");
+  downBtn.type = "button";
+  downBtn.className = "feedback-btn";
+  downBtn.textContent = "👎";
+  downBtn.title = "분류가 틀렸다";
+  downBtn.addEventListener("click", async (e) => {
+    e.stopPropagation();
+    if (downBtn.classList.contains("sent")) return;
+    const ok = await sendFeedback({
+      article_url_hash: currentUrlHash,
+      sentence_index: sentence.index,
+      original_category: sentence.category,
+      feedback_type: "thumbs_down",
+    });
+    if (ok) { downBtn.classList.add("sent"); downBtn.textContent = "👎 전송됨"; showToast("피드백 감사합니다"); }
+  });
+  row.appendChild(downBtn);
+
+  const sep = document.createElement("span");
+  sep.className = "feedback-label";
+  sep.textContent = "또는";
+  row.appendChild(sep);
+
+  const select = document.createElement("select");
+  select.className = "feedback-select";
+  select.setAttribute("aria-label", "올바른 카테고리 제안");
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = "다른 분류 제안...";
+  select.appendChild(placeholder);
+  for (const cat of ["FACT", "CLAIM", "OPINION", "FRAMING"]) {
+    if (cat === sentence.category) continue;
+    const opt = document.createElement("option");
+    opt.value = cat;
+    opt.textContent = CATEGORY_LABELS[cat];
+    select.appendChild(opt);
+  }
+  select.addEventListener("click", (e) => e.stopPropagation());
+  select.addEventListener("change", async (e) => {
+    e.stopPropagation();
+    const suggested = select.value;
+    if (!suggested) return;
+    const ok = await sendFeedback({
+      article_url_hash: currentUrlHash,
+      sentence_index: sentence.index,
+      original_category: sentence.category,
+      feedback_type: "category_correction",
+      suggested_category: suggested,
+    });
+    if (ok) {
+      select.disabled = true;
+      showToast(`'${CATEGORY_LABELS[suggested]}'로 제안 전송됨`);
+    }
+  });
+  row.appendChild(select);
+
+  return row;
 }
 
 // =========================================================================
 // 결과 렌더링
 // =========================================================================
 function renderResult(data) {
+  // 피드백용 hash 저장 (URL 입력일 때만 채워짐)
+  currentUrlHash = data.article.url_hash || null;
+
   els.resultTitle.textContent = data.article.title || "(제목 없음)";
   els.resultSource.textContent = data.article.source || "";
   els.resultAuthor.textContent = data.article.author || "";
