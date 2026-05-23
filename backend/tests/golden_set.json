@@ -1,0 +1,19 @@
+{
+  "_description": "골든셋 — 프롬프트 변경 시 회귀 테스트 기준. 사용자가 직접 라벨링.",
+  "_format": {
+    "sentences": [
+      {
+        "text": "원문 문장",
+        "expected_category": "FACT | CLAIM | OPINION | FRAMING",
+        "expected_significant": true
+      }
+    ]
+  },
+  "_instructions": [
+    "1. 실제 한국 뉴스 기사 5~10개에서 50~100문장 추출",
+    "2. 각 문장에 (category, significant) 라벨링",
+    "3. test_golden.py가 LLM에 분류 요청 → 라벨과 비교 → 일치율 출력",
+    "4. PRD §13: 70%+ 일치율 목표"
+  ],
+  "sentences": []
+}
