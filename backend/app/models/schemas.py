@@ -115,3 +115,42 @@ class FeedbackRequest(BaseModel):
 class FeedbackResponse(BaseModel):
     status: str = "success"
     id: int
+
+
+# =========================================================================
+# 기능 B — 빠진 관점 분석 (PRD §2 기능 B + §5.3)
+# =========================================================================
+
+class PerspectiveType(str, Enum):
+    MISSING_FACT = "MISSING_FACT"
+    MISSING_VIEWPOINT = "MISSING_VIEWPOINT"
+    DIFFERENT_FRAMING = "DIFFERENT_FRAMING"
+
+
+class Perspective(BaseModel):
+    type: PerspectiveType
+    description: str
+    found_in: str  # 출처 매체명
+    source_url: str  # 출처 URL
+
+
+class PerspectivesBlock(BaseModel):
+    topic_summary: str
+    missing_perspectives: list[Perspective] = Field(default_factory=list)
+
+
+class PerspectivesRequest(BaseModel):
+    """기능 A 결과를 받아 기능 B를 별도 호출. 비동기 UX 패턴."""
+    article_url_hash: str = Field(min_length=8, max_length=128)
+    title: str = Field(min_length=1, max_length=500)
+    source: Optional[str] = None  # 같은 매체 제외용 (원본 매체명)
+    source_domain: Optional[str] = None  # 같은 매체 제외용 (원본 도메인)
+    core_facts: list[str] = Field(default_factory=list, max_length=10)
+
+
+class PerspectivesResponse(BaseModel):
+    status: str = "success"
+    perspectives: PerspectivesBlock
+    warnings: list[str] = Field(default_factory=list)
+    cached: bool = False
+    search_results_count: int = 0  # 검색 결과 중 LLM에 전달된 기사 수 (디버깅용)

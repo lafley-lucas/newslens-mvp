@@ -18,9 +18,21 @@ class Settings(BaseSettings):
     MAX_ARTICLE_CHARS: int = 50_000
     MAX_SENTENCES_PER_REQUEST: int = 80  # PRD §11: 매우 긴 기사 80문장 제한
 
+    # 기능 B — 빠진 관점 분석 (PRD §2 기능 B)
+    # Google Custom Search JSON API (무료 100건/일)
+    # https://developers.google.com/custom-search/v1/overview
+    GOOGLE_CSE_API_KEY: str = ""
+    GOOGLE_CSE_ID: str = ""
+    PERSPECTIVES_MAX_RESULTS: int = 5  # LLM에 전달할 비교 기사 최대 수
+    PERSPECTIVES_SEARCH_TIMEOUT: float = 8.0
+
     @property
     def cors_origins_list(self) -> list[str]:
         return [o.strip() for o in self.CORS_ALLOW_ORIGINS.split(",") if o.strip()]
+
+    @property
+    def perspectives_enabled(self) -> bool:
+        return bool(self.GOOGLE_CSE_API_KEY and self.GOOGLE_CSE_ID)
 
 
 settings = Settings()
