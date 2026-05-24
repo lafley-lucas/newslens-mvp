@@ -10,6 +10,8 @@ from ..models.schemas import (
     FeedbackRequest,
     FeedbackResponse,
     FeedbackType,
+    PerspectivesRequest,
+    PerspectivesResponse,
     Sentence,
 )
 from ..services import cache, content_guard, db, in_flight
@@ -24,6 +26,11 @@ from ..services.fetcher import (
     ParsedArticle,
     extract_from_text,
     extract_from_url,
+)
+from ..services.perspectives import (
+    PerspectivesDisabledError,
+    PerspectivesError,
+    analyze_perspectives,
 )
 from ..services.rate_limiter import check_rate_limit
 from ..services.splitter import split_sentences
@@ -282,3 +289,80 @@ def submit_feedback(req: FeedbackRequest) -> FeedbackResponse:
         suggested_category=suggested.value if suggested else None,
     )
     return FeedbackResponse(id=fid)
+
+
+# =========================================================================
+# 기능 B — 빠진 관점 분석 (PRD §2 기능 B + §5.3)
+# =========================================================================
+
+_PERSPECTIVES_CACHE_PREFIX = "persp:"
+
+
+@router.post(
+    "/perspectives",
+    response_model=PerspectivesResponse,
+    dependencies=[Depends(check_rate_limit)],
+)
+def perspectives(req: PerspectivesRequest) -> PerspectivesResponse:
+    """기능 B — 빠진 관점 분석.
+
+    프론트는 /api/analyze 결과를 받은 직후 비동기로 이 엔드포인트를 호출한다.
+    article_url_hash를 기준으로 24h 캐시. 동일 hash 동시 처리 락.
+
+    검색 API 키 미설정 시 501 — 프론트는 카드 자체를 숨김.
+    """
+    cache_key = _PERSPECTIVES_CACHE_PREFIX + req.article_url_hash
+
+    # 1차 캐시 조회 — 락 없이 빠른 경로
+    hit = _load_perspectives_cache(cache_key)
+    if hit is not None:
+        return hit
+
+    try:
+        with in_flight.acquire(cache_key):
+            # 락 안에서 2차 조회
+            hit = _load_perspectives_cache(cache_key)
+            if hit is not None:
+                return hit
+
+            try:
+                block, n, warnings = analyze_perspectives(
+                    title=req.title,
+                    source=req.source,
+                    source_domain=req.source_domain,
+                    core_facts=req.core_facts,
+                )
+            except PerspectivesDisabledError as e:
+                # 키 미설정 — 501 Not Implemented로 프론트가 카드 숨김
+                raise HTTPException(status_code=501, detail=str(e))
+            except QuotaExceededError as e:
+                retry = e.retry_after_sec or 60
+                raise HTTPException(
+                    status_code=429,
+                    detail=f"AI 분석 한도가 일시적으로 초과됐습니다. 약 {retry}초 후 다시 시도해주세요.",
+                    headers={"Retry-After": str(retry)},
+                )
+            except PerspectivesError as e:
+                raise HTTPException(status_code=503, detail=f"빠진 관점 분석 실패: {e}")
+
+            response = PerspectivesResponse(
+                perspectives=block,
+                warnings=warnings,
+                search_results_count=n,
+            )
+            cache.set(cache_key, response.model_dump(mode="json"))
+            return response
+    except in_flight.AlreadyInFlight:
+        raise HTTPException(
+            status_code=409,
+            detail="이 기사는 이미 빠진 관점 분석 중입니다. 잠시 후 다시 시도해주세요.",
+        )
+
+
+def _load_perspectives_cache(cache_key: str) -> PerspectivesResponse | None:
+    cached_dump = cache.get(cache_key)
+    if cached_dump is None:
+        return None
+    resp = PerspectivesResponse.model_validate(cached_dump)
+    resp.cached = True
+    return resp
