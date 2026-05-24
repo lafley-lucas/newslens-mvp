@@ -128,6 +128,18 @@
         <ul id="fact-digest-list"></ul>
       </div>
 
+      <!-- 빠진 관점 카드 (PRD §2 기능 B) — 비동기로 채워짐. 초기 hidden -->
+      <div class="perspectives-block hidden" id="perspectives-block">
+        <h3 class="perspectives-title">🔭 빠진 관점</h3>
+        <div id="perspectives-status" class="perspectives-status">
+          <span class="perspectives-spinner" aria-hidden="true"></span>
+          <span>다른 매체와 비교 분석 중...</span>
+        </div>
+        <p id="perspectives-topic" class="perspectives-topic hidden"></p>
+        <ul id="perspectives-list" class="perspectives-list"></ul>
+        <p id="perspectives-empty" class="perspectives-empty hidden"></p>
+      </div>
+
       <!-- 읽기 / 분석 모드 토글 (PRD §9.2) -->
       <div class="mode-toggle" role="tablist" aria-label="보기 모드">
         <button type="button" class="mode-btn active" data-mode="read" role="tab" aria-selected="true">읽기</button>

@@ -397,6 +397,98 @@ textarea {
 .fact-digest li:last-child { margin-bottom: 0; }
 .fact-digest.hidden { display: none; }
 
+/* 빠진 관점 카드 (PRD §2 기능 B) — Fact Digest 아래에 비동기 채워짐 */
+.perspectives-block {
+  background: #fff8f0;  /* 살짝 따뜻한 톤 — fact-digest(보라)와 구분 */
+  border-left: 3px solid #d97706;  /* amber */
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  margin-bottom: 22px;
+}
+.perspectives-block.hidden { display: none; }
+.perspectives-title {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #92400e;
+}
+.perspectives-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+.perspectives-status.hidden { display: none; }
+.perspectives-spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid #f5d4a8;
+  border-top-color: #d97706;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+  flex-shrink: 0;
+}
+.perspectives-topic {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: var(--color-muted);
+  font-style: italic;
+  line-height: 1.5;
+}
+.perspectives-topic.hidden { display: none; }
+.perspectives-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.perspectives-list li {
+  padding: 10px 0;
+  border-top: 1px dashed #f0d4a8;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.perspectives-list li:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+.perspectives-list li:last-child {
+  padding-bottom: 0;
+}
+.persp-type-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 3px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.persp-type-MISSING_FACT      { background: rgba(37,99,235,.12); color: var(--color-fact); }
+.persp-type-MISSING_VIEWPOINT { background: rgba(8,145,178,.12); color: var(--color-claim); }
+.persp-type-DIFFERENT_FRAMING { background: rgba(234,88,12,.12); color: var(--color-opinion); }
+.persp-description {
+  color: var(--color-text);
+}
+.persp-source {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--color-muted);
+}
+.persp-source a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+.persp-source a:hover { text-decoration: underline; }
+.perspectives-empty {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--color-subtle);
+  line-height: 1.5;
+}
+.perspectives-empty.hidden { display: none; }
+
 /* 읽기/분석 토글 (PRD §9.2) */
 .mode-toggle {
   display: inline-flex;

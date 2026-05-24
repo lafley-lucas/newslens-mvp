@@ -56,6 +56,12 @@ const els = {
   factDigestList: $("fact-digest-list"),
   factDigestBlock: $("fact-digest-block"),
 
+  perspectivesBlock: $("perspectives-block"),
+  perspectivesStatus: $("perspectives-status"),
+  perspectivesTopic: $("perspectives-topic"),
+  perspectivesList: $("perspectives-list"),
+  perspectivesEmpty: $("perspectives-empty"),
+
   noticesBlock: $("notices-block"),
   feedbackToast: $("feedback-toast"),
 
@@ -398,6 +404,137 @@ function renderResult(data) {
   // 기본 모드: 읽기
   setMode("read");
   setState("result");
+
+  // 기능 B (빠진 관점) — 비동기로 백그라운드 호출. 메인 결과는 이미 표시됨.
+  // URL 입력일 때만 (article_url_hash가 있어야 캐시·라우트 동작)
+  if (data.article.url_hash) {
+    fetchPerspectives({
+      article_url_hash: data.article.url_hash,
+      title: data.article.title || "(제목 없음)",
+      source: data.article.source || null,
+      source_domain: hostnameOf(data.article.url),
+      core_facts: (data.analysis.fact_digest && data.analysis.fact_digest.core_facts) || [],
+    });
+  } else {
+    // 텍스트 직접 입력 모드는 빠진 관점 분석 비활성 (URL hash가 없으면 검색 결과 비교의 의미가 약함)
+    els.perspectivesBlock.classList.add("hidden");
+  }
+}
+
+// =========================================================================
+// 빠진 관점 분석 (PRD §2 기능 B) — 비동기
+// =========================================================================
+const PERSPECTIVE_TYPE_LABEL = {
+  MISSING_FACT: "빠진 사실",
+  MISSING_VIEWPOINT: "빠진 입장",
+  DIFFERENT_FRAMING: "다른 프레이밍",
+};
+
+function hostnameOf(url) {
+  if (!url) return null;
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return null;
+  }
+}
+
+function showPerspectivesLoading() {
+  els.perspectivesBlock.classList.remove("hidden");
+  els.perspectivesStatus.classList.remove("hidden");
+  els.perspectivesTopic.classList.add("hidden");
+  els.perspectivesEmpty.classList.add("hidden");
+  els.perspectivesList.innerHTML = "";
+}
+
+function hidePerspectives() {
+  els.perspectivesBlock.classList.add("hidden");
+}
+
+function renderPerspectives(data) {
+  els.perspectivesStatus.classList.add("hidden");
+  els.perspectivesList.innerHTML = "";
+
+  const block = data.perspectives || {};
+  const items = block.missing_perspectives || [];
+
+  if (block.topic_summary) {
+    els.perspectivesTopic.textContent = block.topic_summary;
+    els.perspectivesTopic.classList.remove("hidden");
+  }
+
+  if (items.length === 0) {
+    els.perspectivesEmpty.classList.remove("hidden");
+    if (data.search_results_count === 0) {
+      els.perspectivesEmpty.textContent = "같은 주제를 다룬 다른 매체 기사를 찾지 못했습니다.";
+    } else {
+      els.perspectivesEmpty.textContent =
+        `다른 매체 ${data.search_results_count}건과 비교했지만, 명확히 빠진 사실이나 관점은 발견되지 않았습니다.`;
+    }
+    return;
+  }
+
+  els.perspectivesEmpty.classList.add("hidden");
+  for (const p of items) {
+    const li = document.createElement("li");
+
+    const badge = document.createElement("span");
+    badge.className = `persp-type-badge persp-type-${p.type}`;
+    badge.textContent = PERSPECTIVE_TYPE_LABEL[p.type] || p.type;
+    li.appendChild(badge);
+
+    const desc = document.createElement("span");
+    desc.className = "persp-description";
+    desc.textContent = p.description;
+    li.appendChild(desc);
+
+    const src = document.createElement("span");
+    src.className = "persp-source";
+    src.textContent = "출처: ";
+    const a = document.createElement("a");
+    a.href = p.source_url;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.textContent = p.found_in;
+    src.appendChild(a);
+    li.appendChild(src);
+
+    els.perspectivesList.appendChild(li);
+  }
+}
+
+async function fetchPerspectives(payload) {
+  showPerspectivesLoading();
+  try {
+    const resp = await fetch(`${API_BASE}/api/perspectives`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (resp.status === 501) {
+      // 검색 API 키 미설정 — 카드 자체를 숨김 (조용히)
+      hidePerspectives();
+      return;
+    }
+
+    if (!resp.ok) {
+      // 실패해도 메인 결과에는 영향 X. 카드에만 안내.
+      els.perspectivesStatus.classList.add("hidden");
+      els.perspectivesEmpty.classList.remove("hidden");
+      const err = await resp.json().catch(() => ({}));
+      els.perspectivesEmpty.textContent =
+        `빠진 관점 분석을 가져오지 못했습니다 (${err.detail || `HTTP ${resp.status}`}).`;
+      return;
+    }
+
+    const data = await resp.json();
+    renderPerspectives(data);
+  } catch (e) {
+    els.perspectivesStatus.classList.add("hidden");
+    els.perspectivesEmpty.classList.remove("hidden");
+    els.perspectivesEmpty.textContent = `네트워크 오류로 빠진 관점을 가져오지 못했습니다: ${e.message}`;
+  }
 }
 
 function renderError(message) {
