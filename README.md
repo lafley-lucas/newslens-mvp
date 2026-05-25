@@ -50,9 +50,20 @@ cd backend
 | GET | `/api/health` | 헬스체크 |
 | POST | `/api/extract` | URL/텍스트 → 기사 메타 + 문장 분리 (LLM 미호출) |
 | POST | `/api/analyze` | 위 + 분류 + Fact Digest (LLM 1회 통합 호출) |
+| POST | `/api/perspectives` | **기능 B** — 빠진 관점 분석 (Google CSE + LLM, 비동기 호출용) |
 | POST | `/api/feedback` | 사용자 피드백 (원문 미저장) |
 
 분석 결과 구조: PRD `prd_v4_final.md` §10 참조
+
+### 기능 B (빠진 관점 분석) 활성화 — 선택 사항
+
+기본 배포는 기능 A+D만으로도 동작합니다. 기능 B를 켜려면 Google Custom Search 키 2개를 설정:
+
+1. https://console.cloud.google.com → "Custom Search API" 활성화 → API 키 생성 → `GOOGLE_CSE_API_KEY`
+2. https://programmablesearchengine.google.com → "전체 웹 검색" 엔진 생성 → 검색 엔진 ID → `GOOGLE_CSE_ID`
+3. 두 변수를 `.env` (로컬) 또는 Railway Variables (프로덕션)에 추가 → 백엔드 재시작
+
+미설정 시 `/api/perspectives`가 501을 반환하고 프론트는 카드를 조용히 숨깁니다 (기능 A/D는 영향 없음).
 
 ## 보안·데이터 정책
 
