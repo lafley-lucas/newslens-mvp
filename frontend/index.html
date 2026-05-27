@@ -186,12 +186,13 @@
   <!-- 피드백 토스트 -->
   <div id="feedback-toast" class="feedback-toast" role="status" aria-live="polite"></div>
 
-  <!-- 배포 환경 백엔드 URL 주입 자리.
-       프로덕션에서는 아래 줄을 활성화하고 Railway URL로 교체:
-       window.NEWSLENS_API_BASE = "https://newslens-mvp.up.railway.app";
-  -->
+  <!-- 배포 환경 백엔드 URL 주입.
+       로컬 dev에서 dev 백엔드(localhost:8000)를 쓰려면 이 라인을 주석 처리하거나
+       host 체크를 한 줄 추가하세요. GitHub Pages 등 정식 배포에서는 그대로 사용. -->
   <script>
-    // window.NEWSLENS_API_BASE = "";  // 배포 시 백엔드 URL 입력
+    if (window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
+      window.NEWSLENS_API_BASE = "https://newslens-mvp-production.up.railway.app";
+    }
   </script>
   <script src="./app.js"></script>
 </body>
