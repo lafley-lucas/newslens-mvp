@@ -81,33 +81,24 @@ function showOnly(sectionId) {
   }
 }
 
-function toggleLanding(show) {
-  const landing = document.getElementById("landing-section");
-  if (landing) landing.classList.toggle("hidden", !show);
-}
-
 function setState(state) {
   switch (state) {
     case "idle":
-      toggleLanding(true);
       showOnly("input-section");
       stopLoadingSteps();
       els.analyzeBtn.disabled = false;
       break;
     case "loading":
-      toggleLanding(false);
       showOnly("loading-section");
       startLoadingSteps();
       break;
     case "result":
-      toggleLanding(false);
       showOnly("result-section");
       stopLoadingSteps();
       els.analyzeBtn.disabled = false;
       window.scrollTo({ top: 0, behavior: "smooth" });
       break;
     case "error":
-      toggleLanding(true);
       showOnly("error-section");
       stopLoadingSteps();
       els.analyzeBtn.disabled = false;

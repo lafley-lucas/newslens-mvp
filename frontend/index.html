@@ -3,278 +3,169 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="기사를 렌즈로 들여다본다 — 한국 뉴스 기사의 사실과 의견을 문장별로 가려내는 미디어 필터. 핵심 사실 요약과 비사실 하이라이트 제공." />
-  <meta name="keywords" content="뉴스 분석, 사실 검증, 미디어 리터러시, 한국 뉴스, AI 분석, 팩트체크, 의견 분류" />
-  <meta name="theme-color" content="#534ab7" />
+  <meta name="description" content="기자의 의견을 걸러내고 사실만 남깁니다. AI가 한국 뉴스 기사를 문장 단위로 분석해 의견·해석·프레이밍을 가려내는 미디어 필터." />
+  <meta name="keywords" content="뉴스 분석, 미디어 리터러시, 한국 뉴스, 사실 검증, 프레이밍, 미디어 필터" />
+  <meta name="theme-color" content="#1a1a1a" />
   <meta name="robots" content="index, follow" />
 
-  <!-- Open Graph -->
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="newslens — 뉴스 기사 사실/의견 분석" />
-  <meta property="og:description" content="기사를 렌즈로 들여다본다 — 사실과 의견을 가려내는 미디어 필터" />
+  <meta property="og:title" content="newslens — 기자의 의견을 걸러내고 사실만 남깁니다" />
+  <meta property="og:description" content="AI가 한국 뉴스 기사를 문장 단위로 분석해 의견·해석·프레이밍을 가려내는 미디어 필터." />
   <meta property="og:locale" content="ko_KR" />
   <meta property="og:site_name" content="newslens" />
 
-  <!-- Twitter Card -->
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="newslens — 뉴스 기사 사실/의견 분석" />
-  <meta name="twitter:description" content="한국 뉴스 기사를 문장별로 분류하고 비사실만 하이라이트" />
+  <meta name="twitter:title" content="newslens — 한국 뉴스 미디어 필터" />
+  <meta name="twitter:description" content="기자의 의견을 걸러내고 사실만 남깁니다." />
 
-  <title>newslens — 뉴스 기사 사실/의견 분석</title>
+  <title>newslens — 기자의 의견을 걸러내고 사실만 남깁니다</title>
   <link rel="stylesheet" href="./style.css" />
 </head>
-<body>
-  <main class="container">
-    <header class="site-header">
-      <h1 class="logo">📰 newslens</h1>
-      <p class="tagline">기사를 렌즈로 들여다본다</p>
-    </header>
+<body class="landing-body">
 
-    <!-- ============ 랜딩 (idle/error 상태에서만 표시) ============ -->
-    <div id="landing-section">
-      <section class="hero" aria-labelledby="hero-title">
-        <h2 id="hero-title" class="hero-title">
-          이 기사, <span class="hero-accent">사실</span>은 얼마나 될까?
-        </h2>
-        <p class="hero-sub">
-          기자의 의견·해석·프레이밍은 걸러내고, 검증 가능한 사실만 남겨드립니다.<br />
-          AI가 문장 단위로 분석해 핵심을 한눈에 보여줍니다.
-        </p>
-        <a href="#input-section" class="primary-btn hero-cta">
-          지금 기사 분석해보기 ↓
-        </a>
-        <p class="hero-meta">
-          한국어 특화 · Google Gemini · 무료
-        </p>
-      </section>
+  <header class="landing-nav">
+    <a href="./" class="landing-brand">newslens</a>
+    <nav class="landing-nav-right">
+      <a href="./analyze.html" class="landing-nav-cta">분석하기</a>
+    </nav>
+  </header>
 
-      <section class="features" aria-label="주요 기능">
-        <div class="feature-grid">
-          <article class="feature-card">
-            <div class="feature-icon" aria-hidden="true">📌</div>
-            <h3 class="feature-title">핵심 사실만 추출</h3>
-            <p class="feature-desc">
-              의견·해석·전망을 모두 빼고 검증 가능한 사실만 3~5줄로 요약합니다.
-              "이 기사를 사실만 남기면 이것이다"를 보여드립니다.
-            </p>
-          </article>
+  <main class="landing-main">
 
-          <article class="feature-card">
-            <div class="feature-icon" aria-hidden="true">🔍</div>
-            <h3 class="feature-title">문장 단위 분류</h3>
-            <p class="feature-desc">
-              사실·인용·의견·프레이밍 4가지로 나눠, 일반 독자가 놓치기 쉬운
-              <strong>비사실 문장만 콕</strong> 짚어드립니다.
-            </p>
-          </article>
+    <!-- Hero -->
+    <section class="landing-hero">
+      <p class="landing-eyebrow">한국 뉴스 미디어 필터</p>
+      <h1 class="landing-headline">
+        기자의 의견을 걸러내고,<br />
+        사실만 남깁니다.
+      </h1>
+      <p class="landing-lede">
+        AI가 한국 뉴스 기사를 문장 단위로 분석해
+        의견·해석·프레이밍을 가려냅니다.
+        독자가 놓치기 쉬운 비사실 문장만 골라 보여드립니다.
+      </p>
+      <p class="landing-cta-row">
+        <a href="./analyze.html" class="landing-cta-primary">기사 분석하기 →</a>
+        <a href="#how" class="landing-cta-link">어떻게 작동하나요</a>
+      </p>
+    </section>
 
-          <article class="feature-card feature-soon">
-            <div class="feature-icon" aria-hidden="true">🔭</div>
-            <h3 class="feature-title">
-              빠진 관점 비교 <span class="soon-badge">곧 출시</span>
-            </h3>
-            <p class="feature-desc">
-              같은 이슈를 다룬 다른 매체와 비교해, 원본 기사에 빠진 사실·관점·맥락을 알려드립니다.
-            </p>
-          </article>
+    <hr class="landing-rule" />
+
+    <!-- 왜 -->
+    <section class="landing-section">
+      <h2 class="landing-h2">왜 만들었는가</h2>
+      <p class="landing-prose">
+        한국 뉴스에는 의견을 사실처럼 포장하는 관용적 표현이 많습니다.
+        "<em>~로 알려졌다</em>", "<em>~라는 지적이 나온다</em>", "<em>~할 것으로 전망된다</em>" 같은 표현은
+        출처가 불분명한 해석을 객관적 사실처럼 보이게 만듭니다.
+      </p>
+      <p class="landing-prose">
+        문제는 이런 문장이 일반 독자에게 잘 보이지 않는다는 점입니다.
+        독자가 의견과 사실을 가려내려면 매번 멈춰서 문장을 분해해야 합니다.
+        newslens는 이 작업을 대신 합니다.
+      </p>
+    </section>
+
+    <!-- 어떻게 -->
+    <section class="landing-section" id="how">
+      <h2 class="landing-h2">어떻게 작동하는가</h2>
+      <p class="landing-prose">
+        기사 URL을 붙여넣으면, 본문을 문장 단위로 분리해 네 가지로 분류합니다.
+      </p>
+
+      <dl class="landing-defs">
+        <dt>
+          <span class="landing-def-num">01</span>
+          <span class="landing-def-name">사실</span>
+          <span class="landing-def-tag">FACT</span>
+        </dt>
+        <dd>검증 가능한 사건·날짜·수치·공식 발표.</dd>
+
+        <dt>
+          <span class="landing-def-num">02</span>
+          <span class="landing-def-name">인용</span>
+          <span class="landing-def-tag">CLAIM</span>
+        </dt>
+        <dd>특정 주체의 발언이나 입장을 인용한 것. 인용 행위 자체는 사실이지만, 인용된 내용은 해당 주체의 주장입니다.</dd>
+
+        <dt>
+          <span class="landing-def-num">03</span>
+          <span class="landing-def-name">의견</span>
+          <span class="landing-def-tag">OPINION</span>
+        </dt>
+        <dd>기자 또는 매체의 주관적 판단·분석·예측·평가.</dd>
+
+        <dt>
+          <span class="landing-def-num">04</span>
+          <span class="landing-def-name">프레이밍</span>
+          <span class="landing-def-tag">FRAMING</span>
+        </dt>
+        <dd>단어 선택·어순·강조로 특정 인상을 유도하는 표현.</dd>
+      </dl>
+
+      <p class="landing-prose">
+        그리고 일반 독자가 스스로 인지하기 어려운 비사실 문장만 별도로 표시합니다.
+        모든 문장에 깃발을 꽂지 않습니다 — 의미 있는 것만 짚어서 신뢰를 유지합니다.
+      </p>
+
+      <figure class="landing-example">
+        <blockquote class="landing-example-quote">
+          노조가 또다시 강경 투쟁에 나섰다. 파업 시 한국 경제 근간이 흔들린다는 지적이다.
+        </blockquote>
+        <figcaption class="landing-example-cap">예시 문장 (가상)</figcaption>
+        <div class="landing-example-analysis">
+          <p>
+            <span class="landing-marker">프레이밍</span>
+            "<strong>또다시 강경</strong>"은 단어 선택으로 부정적 인상을 유도합니다.
+          </p>
+          <p>
+            <span class="landing-marker">프레이밍</span>
+            "<strong>지적이다</strong>"는 출처 불명의 의견을 사실 보도처럼 만듭니다.
+          </p>
         </div>
-      </section>
+      </figure>
+    </section>
 
-      <section class="demo" aria-label="분석 예시">
-        <h3 class="section-heading">이렇게 보입니다</h3>
-        <div class="demo-card">
-          <div class="demo-side demo-before">
-            <p class="demo-label">기사 원문</p>
-            <p class="demo-text">
-              노조가 <em>또다시 강경</em> 투쟁에 나섰다. 파업 시 한국 경제 근간이 흔들린다는 <em>지적이다</em>.
-            </p>
-          </div>
-          <div class="demo-arrow" aria-hidden="true">→</div>
-          <div class="demo-side demo-after">
-            <p class="demo-label">newslens 분석</p>
-            <p class="demo-sentence">
-              <span class="demo-dot demo-dot-framing" aria-hidden="true"></span>
-              노조가 또다시 강경 투쟁에 나섰다.
-              <span class="demo-tag">프레이밍 — '또다시 강경'은 단어 선택으로 부정적 인상 유도</span>
-            </p>
-            <p class="demo-sentence">
-              <span class="demo-dot demo-dot-framing" aria-hidden="true"></span>
-              파업 시 한국 경제 근간이 흔들린다는 지적이다.
-              <span class="demo-tag">프레이밍 — 출처 불명의 '지적'으로 사실화</span>
-            </p>
-          </div>
-        </div>
-        <p class="demo-note">
-          📌 우리는 기사의 참/거짓을 재판하지 않습니다. 사실과 의견을 가려내는 <strong>미디어 필터</strong>입니다.
-          최종 판단은 당신의 몫입니다.
-        </p>
-      </section>
-    </div>
+    <hr class="landing-rule" />
 
-    <!-- ============ 입력 화면 ============ -->
-    <section id="input-section" class="card input-card" aria-labelledby="input-heading">
-      <h2 id="input-heading" class="card-heading">뉴스 기사 URL을 붙여넣으세요</h2>
-
-      <form id="analyze-form" class="url-row" autocomplete="off" novalidate>
-        <input
-          id="url-input"
-          type="url"
-          inputmode="url"
-          placeholder="https://news.example.com/article/..."
-          aria-label="뉴스 기사 URL"
-        />
-        <button id="analyze-btn" type="submit" class="primary-btn">
-          분석하기
-        </button>
-      </form>
-
-      <details class="text-fallback">
-        <summary>URL이 안 되나요? 본문 직접 붙여넣기</summary>
-        <textarea
-          id="text-input"
-          rows="8"
-          placeholder="기사 본문을 여기에 붙여넣으세요. 최소 10자 이상."
-          aria-label="기사 본문"
-        ></textarea>
-        <input
-          id="source-input"
-          type="text"
-          placeholder="기사 출처 (선택, 예: 조선일보)"
-          aria-label="기사 출처"
-        />
-      </details>
-
-      <p class="categories-hint">
-        현재 지원: <strong>경제·금융</strong> · <strong>과학·기술·IT</strong>
-        <span class="hint-extra">(다른 카테고리도 작동하지만 최적화 전입니다)</span>
+    <!-- 약속 -->
+    <section class="landing-section">
+      <h2 class="landing-h2">우리가 하지 않는 것</h2>
+      <ul class="landing-promises">
+        <li>기사의 참/거짓을 판단하지 않습니다.</li>
+        <li>매체의 신뢰도를 점수로 매기지 않습니다.</li>
+        <li>정치 성향을 분류하지 않습니다.</li>
+      </ul>
+      <p class="landing-prose landing-prose-quiet">
+        newslens는 심판이 아닌 필터입니다. 문장의 구조적 속성을 분류할 뿐,
+        최종 판단은 당신의 몫입니다.
       </p>
     </section>
 
-    <!-- ============ 로딩 화면 ============ -->
-    <section id="loading-section" class="card loading-card hidden" aria-live="polite" aria-busy="true">
-      <div class="spinner" aria-hidden="true"></div>
-      <h2 class="loading-title">기사를 분석하고 있습니다</h2>
-      <ol class="loading-steps" id="loading-steps">
-        <li data-step="fetch" data-state="active">
-          <span class="step-icon" aria-hidden="true"></span>
-          <span class="step-label">기사 본문 추출</span>
-        </li>
-        <li data-step="analyze" data-state="pending">
-          <span class="step-icon" aria-hidden="true"></span>
-          <span class="step-label">사실/의견 분류 + 핵심 사실 요약</span>
-        </li>
-      </ol>
-      <p class="loading-note">최초 분석은 LLM 호출로 15~20초 정도 걸립니다. 같은 기사를 다시 분석하면 즉시 결과가 나옵니다.</p>
+    <!-- 끝 CTA -->
+    <section class="landing-section landing-section-cta">
+      <h2 class="landing-h2-cta">읽기 전에, 한 번 거쳐보세요.</h2>
+      <p class="landing-cta-row landing-cta-row-center">
+        <a href="./analyze.html" class="landing-cta-primary">기사 분석하기 →</a>
+      </p>
     </section>
 
-    <!-- ============ 에러 ============ -->
-    <section id="error-section" class="card error-card hidden" role="alert">
-      <p id="error-message"></p>
-      <button id="error-retry" type="button" class="secondary-btn">다시 시도</button>
-    </section>
-
-    <!-- ============ 결과 화면 (PRD §3, §9.2) ============ -->
-    <section id="result-section" class="card result-card hidden" aria-labelledby="result-heading">
-      <!-- 메타 -->
-      <div class="result-header">
-        <h2 id="result-heading" class="result-title"></h2>
-        <span id="cached-badge" class="cached-badge hidden" title="24시간 이내 동일 URL 캐시 결과">캐시됨</span>
-      </div>
-      <p class="result-meta">
-        <span id="result-source"></span>
-        <span id="result-author"></span>
-        <span id="result-date"></span>
-      </p>
-
-      <!-- 사실 비율 바 -->
-      <div class="ratio-bar" aria-label="사실 비율">
-        <div class="ratio-segment ratio-fact" id="ratio-fact-seg"></div>
-        <div class="ratio-segment ratio-claim" id="ratio-claim-seg"></div>
-        <div class="ratio-segment ratio-opinion" id="ratio-opinion-seg"></div>
-        <div class="ratio-segment ratio-framing" id="ratio-framing-seg"></div>
-      </div>
-      <div class="ratio-legend">
-        <span class="legend-item"><span class="legend-dot legend-fact"></span>사실 <strong id="cnt-fact">-</strong></span>
-        <span class="legend-item"><span class="legend-dot legend-claim"></span>인용 <strong id="cnt-claim">-</strong></span>
-        <span class="legend-item"><span class="legend-dot legend-opinion"></span>의견 <strong id="cnt-opinion">-</strong></span>
-        <span class="legend-item"><span class="legend-dot legend-framing"></span>프레이밍 <strong id="cnt-framing">-</strong></span>
-      </div>
-
-      <!-- 안내 배너 (오피니언, significant=0, 비한국어 등) -->
-      <div id="notices-block" class="notices-block hidden"></div>
-
-      <!-- 핵심 사실 카드 (읽기·분석 모드 모두 항상 표시 — PRD §2 기능D) -->
-      <div class="fact-digest" id="fact-digest-block">
-        <h3 class="fact-digest-title">📌 핵심 사실</h3>
-        <ul id="fact-digest-list"></ul>
-      </div>
-
-      <!-- 빠진 관점 카드 (PRD §2 기능 B) — 비동기로 채워짐. 초기 hidden -->
-      <div class="perspectives-block hidden" id="perspectives-block">
-        <h3 class="perspectives-title">🔭 빠진 관점</h3>
-        <div id="perspectives-status" class="perspectives-status">
-          <span class="perspectives-spinner" aria-hidden="true"></span>
-          <span>다른 매체와 비교 분석 중...</span>
-        </div>
-        <p id="perspectives-topic" class="perspectives-topic hidden"></p>
-        <ul id="perspectives-list" class="perspectives-list"></ul>
-        <p id="perspectives-empty" class="perspectives-empty hidden"></p>
-      </div>
-
-      <!-- 읽기 / 분석 모드 토글 (PRD §9.2) -->
-      <div class="mode-toggle" role="tablist" aria-label="보기 모드">
-        <button type="button" class="mode-btn active" data-mode="read" role="tab" aria-selected="true">읽기</button>
-        <button type="button" class="mode-btn" data-mode="analyze" role="tab" aria-selected="false">분석</button>
-      </div>
-
-      <!-- 분석 모드 안내 -->
-      <p id="analyze-hint" class="analyze-hint hidden">
-        왼쪽 점이 있는 문장은 일반 독자가 인지하기 어려운 비사실입니다. 탭하면 분석 이유가 보입니다.
-      </p>
-
-      <!-- 본문 (모드에 따라 마진점·아코디언 표시) -->
-      <article class="article-body" id="article-body" aria-live="polite"></article>
-
-      <p class="article-footnote">
-        AI 분석 결과는 완벽하지 않을 수 있습니다. 분석 모드의 강조 문장을 탭하면 분류 이유와 함께 피드백을 보낼 수 있습니다.
-      </p>
-
-      <button id="new-analyze-btn" type="button" class="secondary-btn">다른 기사 분석하기</button>
-    </section>
-
-    <footer class="site-footer">
-      <p class="disclaimer">
-        본 분석은 AI 기반 참고 자료이며, 전문적 미디어 비평을 대체하지 않습니다.
-      </p>
-      <p class="footer-links">
-        <a href="./privacy.html">개인정보 처리방침</a>
-        <span aria-hidden="true">·</span>
-        <a href="https://github.com/lafley-lucas/newslens-mvp" target="_blank" rel="noopener noreferrer">GitHub</a>
-      </p>
-    </footer>
   </main>
 
-  <!-- 데이터 안내 배너 (첫 방문 시 1회) -->
-  <div id="data-banner" class="data-banner hidden" role="dialog" aria-label="데이터 처리 안내">
-    <p class="data-banner-text">
-      NewsLens는 추적·광고 쿠키를 사용하지 않습니다. 분석 시 입력한 기사 본문은 <strong>Google Gemini API</strong>로 전송되며,
-      원문 URL과 본문은 저장되지 않습니다.
-      <a href="./privacy.html">자세히 보기</a>
+  <footer class="landing-footer">
+    <p class="landing-footer-brand">newslens</p>
+    <p class="landing-footer-meta">
+      한국어 뉴스 미디어 리터러시 도구 · MVP · Google Gemini
     </p>
-    <button id="data-banner-dismiss" type="button" class="primary-btn data-banner-btn">확인</button>
-  </div>
+    <p class="landing-footer-links">
+      <a href="./analyze.html">분석하기</a>
+      <span aria-hidden="true">·</span>
+      <a href="./privacy.html">개인정보 처리방침</a>
+      <span aria-hidden="true">·</span>
+      <a href="https://github.com/lafley-lucas/newslens-mvp" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </p>
+  </footer>
 
-  <!-- 피드백 토스트 -->
-  <div id="feedback-toast" class="feedback-toast" role="status" aria-live="polite"></div>
-
-  <!-- 배포 환경 백엔드 URL 주입.
-       로컬 dev에서 dev 백엔드(localhost:8000)를 쓰려면 이 라인을 주석 처리하거나
-       host 체크를 한 줄 추가하세요. GitHub Pages 등 정식 배포에서는 그대로 사용. -->
-  <script>
-    if (window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
-      window.NEWSLENS_API_BASE = "https://newslens-mvp-production.up.railway.app";
-    }
-  </script>
-  <script src="./app.js"></script>
 </body>
 </html>
