@@ -86,10 +86,12 @@ cd backend
 4. Deploy → 자동 헬스체크 `/api/health` 통과 확인
 
 ### 프론트엔드 (GitHub Pages)
+GitHub Pages의 branch 모드는 `/`와 `/docs`만 지원하므로, `frontend/` 폴더는 GitHub Actions로 배포합니다 (`.github/workflows/deploy-pages.yml`이 이미 설정돼 있음).
+
 1. GitHub repo Settings → Pages
-2. Source: `Deploy from a branch`
-3. Branch: `main`, Folder: `/frontend`
-4. Save → 몇 분 후 `https://<user>.github.io/<repo>/` 활성화
+2. **Source**: `GitHub Actions` 선택 (Deploy from a branch 아님)
+3. `frontend/`에 변경이 들어오는 main push마다 Actions가 자동 배포
+4. Actions 탭에서 빌드 완료 후 `https://<user>.github.io/<repo>/` 활성화
 
 배포 후 `frontend/index.html`의 inline config 활성화:
 ```html
