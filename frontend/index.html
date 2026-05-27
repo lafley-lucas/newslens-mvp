@@ -19,6 +19,9 @@
   <meta name="twitter:description" content="기자의 의견을 걸러내고 사실만 남깁니다." />
 
   <title>newslens — 기자의 의견을 걸러내고 사실만 남깁니다</title>
+
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body class="landing-body">
@@ -36,8 +39,8 @@
     <section class="landing-hero">
       <p class="landing-eyebrow">한국 뉴스 미디어 필터</p>
       <h1 class="landing-headline">
-        기자의 의견을 걸러내고,<br />
-        사실만 남깁니다.
+        기자의 <span class="landing-hl">의견</span>을 걸러내고,<br />
+        <span class="landing-hl">사실</span>만 남깁니다.
       </h1>
       <p class="landing-lede">
         AI가 한국 뉴스 기사를 문장 단위로 분석해
@@ -78,28 +81,28 @@
         <dt>
           <span class="landing-def-num">01</span>
           <span class="landing-def-name">사실</span>
-          <span class="landing-def-tag">FACT</span>
+          <span class="landing-def-tag" data-cat="FACT">FACT</span>
         </dt>
         <dd>검증 가능한 사건·날짜·수치·공식 발표.</dd>
 
         <dt>
           <span class="landing-def-num">02</span>
           <span class="landing-def-name">인용</span>
-          <span class="landing-def-tag">CLAIM</span>
+          <span class="landing-def-tag" data-cat="CLAIM">CLAIM</span>
         </dt>
         <dd>특정 주체의 발언이나 입장을 인용한 것. 인용 행위 자체는 사실이지만, 인용된 내용은 해당 주체의 주장입니다.</dd>
 
         <dt>
           <span class="landing-def-num">03</span>
           <span class="landing-def-name">의견</span>
-          <span class="landing-def-tag">OPINION</span>
+          <span class="landing-def-tag" data-cat="OPINION">OPINION</span>
         </dt>
         <dd>기자 또는 매체의 주관적 판단·분석·예측·평가.</dd>
 
         <dt>
           <span class="landing-def-num">04</span>
           <span class="landing-def-name">프레이밍</span>
-          <span class="landing-def-tag">FRAMING</span>
+          <span class="landing-def-tag" data-cat="FRAMING">FRAMING</span>
         </dt>
         <dd>단어 선택·어순·강조로 특정 인상을 유도하는 표현.</dd>
       </dl>
