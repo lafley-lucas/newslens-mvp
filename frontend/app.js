@@ -33,6 +33,10 @@ const els = {
   sourceInput: $("source-input"),
   analyzeBtn: $("analyze-btn"),
 
+  shareRow: $("share-row"),
+  shareKakaoBtn: $("share-kakao-btn"),
+  shareCopyBtn: $("share-copy-btn"),
+
   loadingSteps: $("loading-steps"),
 
   errorMsg: $("error-message"),
@@ -607,6 +611,94 @@ async function analyze() {
 }
 
 // =========================================================================
+// 공유 (런치 전략 §5 — 친구 공유 동선)
+// 의존성 없이: 모바일은 navigator.share (시스템 시트에 카톡 노출),
+// 데스크탑은 클립보드 복사로 폴백.
+// =========================================================================
+const SHARE_LANDING_URL = (() => {
+  try {
+    const u = new URL("./", window.location.href);
+    return u.toString();
+  } catch {
+    return window.location.origin + "/";
+  }
+})();
+
+function buildShareText() {
+  const title = (els.resultTitle && els.resultTitle.textContent) || "";
+  const trimmed = title.length > 40 ? title.slice(0, 40) + "…" : title;
+  if (trimmed) {
+    return `"${trimmed}"\n이 기사, 어디가 사실이고 어디가 의견인지 색깔로 봤습니다.\nnewslens에서 직접 확인 →`;
+  }
+  return "이 기사, 어디가 사실이고 어디가 의견인지 색깔로 봤습니다.\nnewslens에서 직접 확인 →";
+}
+
+async function copyToClipboard(text) {
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch {}
+  // execCommand 폴백
+  try {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    const ok = document.execCommand("copy");
+    document.body.removeChild(ta);
+    return ok;
+  } catch {
+    return false;
+  }
+}
+
+async function handleShareKakao() {
+  const shareText = buildShareText();
+  // navigator.share는 모바일(특히 안드로이드/iOS Safari)에서 카톡 옵션 포함된 시스템 시트를 띄움.
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: "newslens — 사실과 의견을 색깔로",
+        text: shareText,
+        url: SHARE_LANDING_URL,
+      });
+      return;
+    } catch (e) {
+      // 사용자가 취소했거나 미지원 — 클립보드 폴백
+    }
+  }
+  // 데스크탑 폴백: 텍스트+링크를 클립보드에 복사
+  const ok = await copyToClipboard(`${shareText} ${SHARE_LANDING_URL}`);
+  if (ok) {
+    showToast("문구가 복사됐어요. 카톡에 붙여넣으세요");
+  } else {
+    showToast("복사 실패 — 주소창에서 URL을 직접 복사해주세요");
+  }
+}
+
+async function handleShareCopy() {
+  const ok = await copyToClipboard(SHARE_LANDING_URL);
+  if (!ok) {
+    showToast("복사 실패 — 주소창에서 URL을 직접 복사해주세요");
+    return;
+  }
+  showToast("링크를 복사했습니다");
+  if (els.shareCopyBtn) {
+    const orig = els.shareCopyBtn.innerHTML;
+    els.shareCopyBtn.classList.add("copied");
+    els.shareCopyBtn.innerHTML = '<span aria-hidden="true">✓</span> 복사됨';
+    setTimeout(() => {
+      els.shareCopyBtn.classList.remove("copied");
+      els.shareCopyBtn.innerHTML = orig;
+    }, 1800);
+  }
+}
+
+// =========================================================================
 // 이벤트 바인딩
 // =========================================================================
 els.form.addEventListener("submit", (e) => {
@@ -627,6 +719,9 @@ els.newAnalyzeBtn.addEventListener("click", () => {
 for (const btn of els.modeButtons) {
   btn.addEventListener("click", () => setMode(btn.dataset.mode));
 }
+
+if (els.shareKakaoBtn) els.shareKakaoBtn.addEventListener("click", handleShareKakao);
+if (els.shareCopyBtn)  els.shareCopyBtn.addEventListener("click", handleShareCopy);
 
 setState("idle");
 

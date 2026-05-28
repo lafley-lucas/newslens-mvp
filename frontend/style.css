@@ -207,23 +207,32 @@ html, body {
   letter-spacing: -0.03em;
   color: #0a0a0a;
 }
-/* 핵심 단어 highlighter — 차분한 보라 */
-.landing-hl {
+/* 핵심 단어 highlighter — 차분한 보라 (기본) */
+.landing-hl,
+.landing-hl-fact,
+.landing-hl-opinion {
   position: relative;
   display: inline-block;
   white-space: nowrap;
 }
-.landing-hl::after {
+.landing-hl::after,
+.landing-hl-fact::after,
+.landing-hl-opinion::after {
   content: "";
   position: absolute;
   left: -2px;
   right: -2px;
   bottom: 0.06em;
   height: 0.32em;
-  background: rgba(83,74,183,0.18);
   z-index: -1;
   border-radius: 2px;
 }
+.landing-hl::after { background: rgba(83,74,183,0.18); }
+/* 카피와 제품 컬러를 일치 — "사실"은 파랑, "의견"은 오렌지. 분석 결과 화면 컬러와 동일. */
+.landing-hl-fact    { color: #1e40af; }
+.landing-hl-fact::after    { background: rgba(37,99,235,0.20); }
+.landing-hl-opinion { color: #9a3412; }
+.landing-hl-opinion::after { background: rgba(234,88,12,0.22); }
 .landing-lede {
   margin: 0 0 36px;
   font-size: 18px;
@@ -1062,6 +1071,68 @@ textarea {
   font-size: 12px;
   color: var(--color-subtle);
   text-align: center;
+}
+
+/* 공유 행 — 결과 페이지 본문 직후, 친구 공유 동선 (런치 전략 §5) */
+.share-row {
+  margin: 28px 0 18px;
+  padding: 18px 16px;
+  background: var(--color-accent-soft);
+  border-radius: var(--radius);
+  text-align: center;
+}
+.share-prompt {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+.share-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+.share-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 11px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  border-radius: 999px;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+  min-height: var(--touch-min);
+  transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.05s;
+}
+.share-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+.share-btn:active { transform: scale(0.97); }
+.share-btn-primary {
+  background: #fee500; /* 카카오 옐로 */
+  border-color: #fee500;
+  color: #191919;
+}
+.share-btn-primary:hover {
+  background: #fdd835;
+  border-color: #fdd835;
+  color: #191919;
+}
+.share-btn.copied {
+  background: var(--color-success);
+  border-color: var(--color-success);
+  color: white;
+}
+@media (max-width: 480px) {
+  .share-buttons { flex-direction: column; }
+  .share-btn { width: 100%; justify-content: center; }
 }
 
 /* 피드백 (Day 10) — rationale 아코디언 안에 들어감 */
